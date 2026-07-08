@@ -1,53 +1,132 @@
 const Asset = require("../models/assetModel");
 
 // GET all assets
-exports.getAssets = (req, res) => {
-    Asset.getAllAssets((err, results) => {
-        if (err) return res.status(500).json(err);
+const getAssets = async (req, res) => {
+    try {
+        const assets = await Asset.getAllAssets();
 
-        res.json(results);
-    });
+        res.status(200).json({
+            success: true,
+            count: assets.length,
+            data: assets
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch assets"
+        });
+    }
 };
 
 // GET asset by ID
-exports.getAsset = (req, res) => {
-    Asset.getAssetById(req.params.id, (err, results) => {
-        if (err) return res.status(500).json(err);
+const getAsset = async (req, res) => {
+    try {
+        const asset = await Asset.getAssetById(req.params.id);
 
-        res.json(results);
-    });
+        if (asset.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Asset not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: asset[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch asset"
+        });
+    }
 };
 
-// POST asset
-exports.createAsset = (req, res) => {
-    Asset.addAsset(req.body, (err, result) => {
-        if (err) return res.status(500).json(err);
+// CREATE asset
+const createAsset = async (req, res) => {
+    try {
+        const result = await Asset.addAsset(req.body);
 
-        res.json({
-            message: "Asset Added Successfully",
-            id: result.insertId
+        res.status(201).json({
+            success: true,
+            message: "Asset created successfully",
+            assetId: result.insertId
         });
-    });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create asset"
+        });
+    }
 };
 
-// PUT asset
-exports.updateAsset = (req, res) => {
-    Asset.updateAsset(req.params.id, req.body, (err) => {
-        if (err) return res.status(500).json(err);
+// UPDATE asset
+const updateAsset = async (req, res) => {
+    try {
+        const result = await Asset.updateAsset(req.params.id, req.body);
 
-        res.json({
-            message: "Asset Updated Successfully"
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Asset not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Asset updated successfully"
         });
-    });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update asset"
+        });
+    }
 };
 
 // DELETE asset
-exports.deleteAsset = (req, res) => {
-    Asset.deleteAsset(req.params.id, (err) => {
-        if (err) return res.status(500).json(err);
+const deleteAsset = async (req, res) => {
+    try {
+        const result = await Asset.deleteAsset(req.params.id);
 
-        res.json({
-            message: "Asset Deleted Successfully"
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Asset not found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Asset deleted successfully"
         });
-    });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete asset"
+        });
+    }
+};
+
+module.exports = {
+    getAssets,
+    getAsset,
+    createAsset,
+    updateAsset,
+    deleteAsset
 };
