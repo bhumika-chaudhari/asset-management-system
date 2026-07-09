@@ -31,10 +31,15 @@ app.get("/", (req, res) => {
 
 const assetRoutes = require("./routes/assetRoutes");
 const authRoutes = require("./routes/authRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
+const errorHandler = require("./middleware/errorMiddleware");
+app.use("/api/auth", authRoutes);
 
 app.use("/api/assets", assetRoutes);
 
-app.use("/api/auth", authRoutes);
+app.use("/api/employees", employeeRoutes);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
