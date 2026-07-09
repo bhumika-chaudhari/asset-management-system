@@ -1,16 +1,18 @@
 const express = require("express");
+
 const router = express.Router();
 
 const assetController = require("../controllers/assetController");
+const authenticate = require("../middleware/authMiddleware");
 
-router.get("/", assetController.getAssets);
+router.get("/", authenticate, assetController.getAssets);
 
-router.get("/:id", assetController.getAsset);
+router.get("/:id", authenticate, assetController.getAsset);
 
-router.post("/", assetController.createAsset);
+router.post("/", authenticate, assetController.createAsset);
 
-router.put("/:id", assetController.updateAsset);
+router.put("/:id", authenticate, assetController.updateAsset);
 
-router.delete("/:id", assetController.deleteAsset);
+router.delete("/:id", authenticate, assetController.deleteAsset);
 
 module.exports = router;
