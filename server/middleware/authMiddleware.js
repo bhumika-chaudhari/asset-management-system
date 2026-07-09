@@ -44,5 +44,22 @@ const authenticate = (req, res, next) => {
 
     }
 };
+const authorize = (...roles) => {
+    return (req, res, next) => {
 
-module.exports = authenticate;
+        if (!roles.includes(req.user.role)) {
+
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You do not have permission."
+            });
+
+        }
+
+        next();
+    };
+};
+module.exports = {
+    authenticate,
+    authorize
+};
