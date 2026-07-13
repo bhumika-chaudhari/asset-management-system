@@ -1,10 +1,7 @@
 const Allocation = require("../models/allocationModel");
 const asyncHandler = require("../utils/asyncHandler");
 
-// ==============================
 // Allocate Asset
-// POST /api/allocations
-// ==============================
 const allocateAsset = asyncHandler(async (req, res) => {
 
     const {
@@ -14,12 +11,10 @@ const allocateAsset = asyncHandler(async (req, res) => {
     } = req.body;
 
     if (!asset_id || !employee_id || !assigned_date) {
-
         return res.status(400).json({
             success: false,
             message: "Please provide all required fields."
         });
-
     }
 
     const result = await Allocation.allocateAsset({
@@ -36,10 +31,7 @@ const allocateAsset = asyncHandler(async (req, res) => {
 
 });
 
-// ==============================
 // Get All Allocations
-// GET /api/allocations
-// ==============================
 const getAllocations = asyncHandler(async (req, res) => {
 
     const allocations = await Allocation.getAllAllocations();
@@ -52,7 +44,22 @@ const getAllocations = asyncHandler(async (req, res) => {
 
 });
 
+// Return Asset
+const returnAsset = asyncHandler(async (req, res) => {
+
+    const { id } = req.params;
+
+    await Allocation.returnAsset(id);
+
+    res.status(200).json({
+        success: true,
+        message: "Asset returned successfully."
+    });
+
+});
+
 module.exports = {
     allocateAsset,
-    getAllocations
+    getAllocations,
+    returnAsset
 };

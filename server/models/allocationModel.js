@@ -27,10 +27,8 @@ const allocateAsset = async ({ asset_id, employee_id, assigned_date }) => {
 
     try {
 
-        // Start Transaction
         await connection.beginTransaction();
 
-        // Check Asset
         const [assetRows] = await connection.query(
             "SELECT * FROM assets WHERE id = ?",
             [asset_id]
@@ -40,7 +38,6 @@ const allocateAsset = async ({ asset_id, employee_id, assigned_date }) => {
             throw new Error("Asset not found");
         }
 
-        // Check Employee
         const [employeeRows] = await connection.query(
             "SELECT * FROM employees WHERE id = ?",
             [employee_id]
@@ -50,39 +47,29 @@ const allocateAsset = async ({ asset_id, employee_id, assigned_date }) => {
             throw new Error("Employee not found");
         }
 
-        // Check Asset Status
         if (assetRows[0].status !== "Available") {
             throw new Error("Asset is already assigned or under maintenance");
         }
 
-        // Insert Allocation
         const [allocationResult] = await connection.query(
             `INSERT INTO allocations
             (asset_id, employee_id, assigned_date)
             VALUES (?, ?, ?)`,
-            [
-                asset_id,
-                employee_id,
-                assigned_date
-            ]
+            [asset_id, employee_id, assigned_date]
         );
 
-        // Update Asset Status
         await connection.query(
             "UPDATE assets SET status='Assigned' WHERE id=?",
             [asset_id]
         );
 
-        // Commit Transaction
         await connection.commit();
 
         return allocationResult;
 
     } catch (error) {
 
-        // Rollback if any query fails
         await connection.rollback();
-
         throw error;
 
     } finally {
@@ -115,6 +102,7 @@ const getAllAllocations = async () => {
 
     return rows;
 };
+
 // Return Asset (Transaction)
 const returnAsset = async (allocationId) => {
 
@@ -124,7 +112,6 @@ const returnAsset = async (allocationId) => {
 
         await connection.beginTransaction();
 
-        // Find allocation
         const [allocationRows] = await connection.query(
             "SELECT * FROM allocations WHERE id = ?",
             [allocationId]
@@ -136,12 +123,10 @@ const returnAsset = async (allocationId) => {
 
         const allocation = allocationRows[0];
 
-        // Check if already returned
         if (allocation.status === "Returned") {
             throw new Error("Asset already returned");
         }
 
-        // Update allocation
         await connection.query(
             `UPDATE allocations
              SET status='Returned',
@@ -150,7 +135,6 @@ const returnAsset = async (allocationId) => {
             [allocationId]
         );
 
-        // Update asset
         await connection.query(
             `UPDATE assets
              SET status='Available'
@@ -165,7 +149,6 @@ const returnAsset = async (allocationId) => {
     } catch (error) {
 
         await connection.rollback();
-
         throw error;
 
     } finally {
@@ -173,11 +156,12 @@ const returnAsset = async (allocationId) => {
         connection.release();
 
     }
-
 };
+
 module.exports = {
     getAssetById,
     getEmployeeById,
     allocateAsset,
-    getAllAllocations
+    getAllAllocations,
+    returnAsset
 };

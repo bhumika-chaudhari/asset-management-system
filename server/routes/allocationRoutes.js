@@ -9,19 +9,24 @@ const {
     authorize
 } = require("../middleware/authMiddleware");
 
-// Get allocation history
 router.get(
     "/",
     authenticate,
     allocationController.getAllocations
 );
 
-// Allocate asset
 router.post(
     "/",
     authenticate,
     authorize("Admin"),
     allocationController.allocateAsset
+);
+
+router.put(
+    "/:id/return",
+    authenticate,
+    authorize("Admin"),
+    allocationController.returnAsset
 );
 
 module.exports = router;
