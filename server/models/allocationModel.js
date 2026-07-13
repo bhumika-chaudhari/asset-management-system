@@ -115,7 +115,66 @@ const getAllAllocations = async () => {
 
     return rows;
 };
+// Return Asset (Transaction)
+const returnAsset = async (allocationId) => {
 
+    const connection = await db.getConnection();
+
+    try {
+
+        await connection.beginTransaction();
+
+        // Find allocation
+        const [allocationRows] = await connection.query(
+            "SELECT * FROM allocations WHERE id = ?",
+            [allocationId]
+        );
+
+        if (allocationRows.length === 0) {
+            throw new Error("Allocation not found");
+        }
+
+        const allocation = allocationRows[0];
+
+        // Check if already returned
+        if (allocation.status === "Returned") {
+            throw new Error("Asset already returned");
+        }
+
+        // Update allocation
+        await connection.query(
+            `UPDATE allocations
+             SET status='Returned',
+                 return_date=CURDATE()
+             WHERE id=?`,
+            [allocationId]
+        );
+
+        // Update asset
+        await connection.query(
+            `UPDATE assets
+             SET status='Available'
+             WHERE id=?`,
+            [allocation.asset_id]
+        );
+
+        await connection.commit();
+
+        return true;
+
+    } catch (error) {
+
+        await connection.rollback();
+
+        throw error;
+
+    } finally {
+
+        connection.release();
+
+    }
+
+};
 module.exports = {
     getAssetById,
     getEmployeeById,
