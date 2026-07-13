@@ -33,11 +33,14 @@ const assetRoutes = require("./routes/assetRoutes");
 const authRoutes = require("./routes/authRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
+const allocationRoutes = require("./routes/allocationRoutes");
 app.use("/api/auth", authRoutes);
 
 app.use("/api/assets", assetRoutes);
 
 app.use("/api/employees", employeeRoutes);
+
+app.use("/api/allocations", allocationRoutes);
 
 app.use(errorHandler);
 
