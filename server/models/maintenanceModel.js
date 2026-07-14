@@ -78,8 +78,65 @@ const getAllMaintenance = async () => {
     return rows;
 
 };
+// Complete Maintenance
+const completeMaintenance = async (maintenanceId) => {
 
+    const connection = await db.getConnection();
+
+    try {
+
+        await connection.beginTransaction();
+
+        // Find maintenance record
+        const [maintenanceRows] = await connection.query(
+            "SELECT * FROM maintenance WHERE id = ?",
+            [maintenanceId]
+        );
+
+        if (maintenanceRows.length === 0) {
+            throw new Error("Maintenance record not found");
+        }
+
+        const maintenance = maintenanceRows[0];
+
+        if (maintenance.status === "Completed") {
+            throw new Error("Maintenance already completed");
+        }
+
+        // Update maintenance status
+        await connection.query(
+            `UPDATE maintenance
+             SET status='Completed'
+             WHERE id=?`,
+            [maintenanceId]
+        );
+
+        // Update asset status
+        await connection.query(
+            `UPDATE assets
+             SET status='Available'
+             WHERE id=?`,
+            [maintenance.asset_id]
+        );
+
+        await connection.commit();
+
+        return true;
+
+    } catch (error) {
+
+        await connection.rollback();
+        throw error;
+
+    } finally {
+
+        connection.release();
+
+    }
+
+};
 module.exports = {
     addMaintenance,
-    getAllMaintenance
+    getAllMaintenance,
+    completeMaintenance
 };
