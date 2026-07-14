@@ -9,18 +9,8 @@ const {
     authorize
 } = require("../middleware/authMiddleware");
 
-// ===============================
-// Get All Maintenance Records
-// ===============================
-router.get(
-    "/",
-    authenticate,
-    maintenanceController.getAllMaintenance
-);
+router.get("/", authenticate, maintenanceController.getAllMaintenance);
 
-// ===============================
-// Add Maintenance Record
-// ===============================
 router.post(
     "/",
     authenticate,
@@ -28,4 +18,10 @@ router.post(
     maintenanceController.addMaintenance
 );
 
+router.put(
+    "/:id",
+    authenticate,
+    authorize("Admin"),
+    maintenanceController.completeMaintenance
+);
 module.exports = router;

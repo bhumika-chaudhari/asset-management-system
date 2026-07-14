@@ -52,8 +52,20 @@ const getAllMaintenance = asyncHandler(async (req, res) => {
     });
 
 });
+const completeMaintenance = asyncHandler(async (req, res) => {
 
+    const { id } = req.params;
+
+    await Maintenance.completeMaintenance(id);
+
+    res.status(200).json({
+        success: true,
+        message: "Maintenance completed successfully."
+    });
+
+});
 module.exports = {
     addMaintenance,
-    getAllMaintenance
+    getAllMaintenance,
+    completeMaintenance
 };
