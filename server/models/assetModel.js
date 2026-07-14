@@ -1,9 +1,45 @@
 const db = require("../config/db");
 
 // Get all assets
-const getAllAssets = async () => {
-    const [rows] = await db.query("SELECT * FROM assets");
+const getAllAssets = async (filters) => {
+
+    let sql = "SELECT * FROM assets WHERE 1=1";
+
+    let values = [];
+
+    // Search by asset name
+    if (filters.search) {
+
+        sql += " AND asset_name LIKE ?";
+
+        values.push(`%${filters.search}%`);
+
+    }
+
+    // Filter by status
+    if (filters.status) {
+
+        sql += " AND status = ?";
+
+        values.push(filters.status);
+
+    }
+
+    // Filter by category
+    if (filters.category) {
+
+        sql += " AND category = ?";
+
+        values.push(filters.category);
+
+    }
+
+    sql += " ORDER BY id DESC";
+
+    const [rows] = await db.query(sql, values);
+
     return rows;
+
 };
 
 // Get asset by ID
