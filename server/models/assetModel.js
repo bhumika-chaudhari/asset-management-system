@@ -1,47 +1,50 @@
 const db = require("../config/db");
 
-// Get all assets
 const getAllAssets = async (filters) => {
 
     let sql = "SELECT * FROM assets WHERE 1=1";
+    let countSql = "SELECT COUNT(*) AS total FROM assets WHERE 1=1";
 
     let values = [];
+    let countValues = [];
 
-    // Search by asset name
+    // Search
     if (filters.search) {
-
         sql += " AND asset_name LIKE ?";
-
+        countSql += " AND asset_name LIKE ?";
         values.push(`%${filters.search}%`);
-
+        countValues.push(`%${filters.search}%`);
     }
 
-    // Filter by status
+    // Status Filter
     if (filters.status) {
-
         sql += " AND status = ?";
-
+        countSql += " AND status = ?";
         values.push(filters.status);
-
+        countValues.push(filters.status);
     }
 
-    // Filter by category
+    // Category Filter
     if (filters.category) {
-
         sql += " AND category = ?";
-
+        countSql += " AND category = ?";
         values.push(filters.category);
-
+        countValues.push(filters.category);
     }
 
-    sql += " ORDER BY id DESC";
+    sql += " ORDER BY id DESC LIMIT ? OFFSET ?";
+
+    values.push(filters.limit);
+    values.push(filters.offset);
 
     const [rows] = await db.query(sql, values);
+    const [[count]] = await db.query(countSql, countValues);
 
-    return rows;
-
+    return {
+        assets: rows,
+        total: count.total
+    };
 };
-
 // Get asset by ID
 const getAssetById = async (id) => {
     const [rows] = await db.query(

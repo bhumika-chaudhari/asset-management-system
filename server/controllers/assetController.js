@@ -1,26 +1,34 @@
+
 const Asset = require("../models/assetModel");
+const asyncHandler = require("../utils/asyncHandler");
 
-// GET all assets
-const getAssets = async (req, res) => {
-    try {
-        const assets = await Asset.getAllAssets();
+const getAllAssets = asyncHandler(async (req, res) => {
 
-        res.status(200).json({
-            success: true,
-            count: assets.length,
-            data: assets
-        });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
 
-    } catch (error) {
-        console.error(error);
+    const offset = (page - 1) * limit;
 
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch assets"
-        });
-    }
-};
+    const filters = {
+        search: req.query.search || "",
+        status: req.query.status || "",
+        category: req.query.category || "",
+        limit,
+        offset
+    };
 
+    const result = await Asset.getAllAssets(filters);
+
+    res.status(200).json({
+        success: true,
+        page,
+        limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit),
+        data: result.assets
+    });
+
+});
 // GET asset by ID
 const getAsset = async (req, res) => {
     try {
@@ -124,7 +132,7 @@ const deleteAsset = async (req, res) => {
 };
 
 module.exports = {
-    getAssets,
+    getAllAssets,
     getAsset,
     createAsset,
     updateAsset,
