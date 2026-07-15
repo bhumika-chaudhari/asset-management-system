@@ -26,6 +26,7 @@ const getAllocationReport = async () => {
 
     return rows;
 };
+
 // ======================================
 // Employee Asset Report
 // ======================================
@@ -39,22 +40,20 @@ const getEmployeeAssetReport = async () => {
             e.department,
             COUNT(a.id) AS total_assets
         FROM employees e
-
         LEFT JOIN allocations a
             ON e.id = a.employee_id
             AND a.status = 'Assigned'
-
         GROUP BY
             e.id,
             e.employee_code,
             e.name,
             e.department
-
         ORDER BY total_assets DESC
     `);
 
     return rows;
 };
+
 // ======================================
 // Maintenance Report
 // ======================================
@@ -76,24 +75,56 @@ const getMaintenanceReport = async () => {
     `);
 
     return rows;
+};
+
+// ======================================
+// Dashboard Report
+// ======================================
+const getDashboardReport = async () => {
+
+    const [[totalAssets]] = await db.query(
+        "SELECT COUNT(*) AS totalAssets FROM assets"
+    );
+
+    const [[availableAssets]] = await db.query(
+        "SELECT COUNT(*) AS availableAssets FROM assets WHERE status='Available'"
+    );
+
+    const [[assignedAssets]] = await db.query(
+        "SELECT COUNT(*) AS assignedAssets FROM assets WHERE status='Assigned'"
+    );
+
+    const [[maintenanceAssets]] = await db.query(
+        "SELECT COUNT(*) AS maintenanceAssets FROM assets WHERE status='Maintenance'"
+    );
+
+    const [[employees]] = await db.query(
+        "SELECT COUNT(*) AS totalEmployees FROM employees"
+    );
+
+    const [[allocations]] = await db.query(
+        "SELECT COUNT(*) AS totalAllocations FROM allocations"
+    );
+
+    const [[maintenanceCost]] = await db.query(
+        "SELECT IFNULL(SUM(cost),0) AS totalMaintenanceCost FROM maintenance"
+    );
+
+    return {
+        totalAssets: totalAssets.totalAssets,
+        availableAssets: availableAssets.availableAssets,
+        assignedAssets: assignedAssets.assignedAssets,
+        maintenanceAssets: maintenanceAssets.maintenanceAssets,
+        totalEmployees: employees.totalEmployees,
+        totalAllocations: allocations.totalAllocations,
+        totalMaintenanceCost: maintenanceCost.totalMaintenanceCost
+    };
 
 };
+
 module.exports = {
     getAllocationReport,
     getEmployeeAssetReport,
-    getMaintenanceReport
+    getMaintenanceReport,
+    getDashboardReport
 };
-
-/*
-allocations
-      │
-      ├──────── assets
-      │
-      └──────── employees
-
-
-this returnss like 
-| Asset | Employee | Department | Assigned Date | Return Date | Status |
-| ----- | -------- | ---------- | ------------- | ----------- | ------ |
-
-*/

@@ -1,9 +1,9 @@
 const Maintenance = require("../models/maintenanceModel");
 const asyncHandler = require("../utils/asyncHandler");
 
-// ===============================
+// ======================================
 // Add Maintenance Record
-// ===============================
+// ======================================
 const addMaintenance = asyncHandler(async (req, res) => {
 
     const {
@@ -14,7 +14,6 @@ const addMaintenance = asyncHandler(async (req, res) => {
         status
     } = req.body;
 
-    // Validation
     if (!asset_id || !maintenance_date || !description || cost == null) {
         return res.status(400).json({
             success: false,
@@ -38,9 +37,9 @@ const addMaintenance = asyncHandler(async (req, res) => {
 
 });
 
-// ===============================
+// ======================================
 // Get All Maintenance Records
-// ===============================
+// ======================================
 const getAllMaintenance = asyncHandler(async (req, res) => {
 
     const records = await Maintenance.getAllMaintenance();
@@ -52,6 +51,10 @@ const getAllMaintenance = asyncHandler(async (req, res) => {
     });
 
 });
+
+// ======================================
+// Complete Maintenance
+// ======================================
 const completeMaintenance = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
@@ -64,29 +67,9 @@ const completeMaintenance = asyncHandler(async (req, res) => {
     });
 
 });
-// ======================================
-// Maintenance Report
-// ======================================
-const getMaintenanceReport = asyncHandler(async (req, res) => {
 
-    const report = await Report.getMaintenanceReport();
-
-    const totalCost = report.reduce(
-        (sum, item) => sum + Number(item.cost),
-        0
-    );
-
-    res.status(200).json({
-        success: true,
-        count: report.length,
-        totalCost,
-        data: report
-    });
-
-});
 module.exports = {
     addMaintenance,
     getAllMaintenance,
-    completeMaintenance,
-    getMaintenanceReport
+    completeMaintenance
 };

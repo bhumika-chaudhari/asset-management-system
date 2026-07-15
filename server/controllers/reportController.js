@@ -15,6 +15,10 @@ const getAllocationReport = asyncHandler(async (req, res) => {
     });
 
 });
+
+// ======================================
+// Employee Asset Report
+// ======================================
 const getEmployeeAssetReport = asyncHandler(async (req, res) => {
 
     const report = await Report.getEmployeeAssetReport();
@@ -26,7 +30,45 @@ const getEmployeeAssetReport = asyncHandler(async (req, res) => {
     });
 
 });
+
+// ======================================
+// Maintenance Report
+// ======================================
+const getMaintenanceReport = asyncHandler(async (req, res) => {
+
+    const report = await Report.getMaintenanceReport();
+
+    const totalCost = report.reduce(
+        (sum, item) => sum + Number(item.cost),
+        0
+    );
+
+    res.status(200).json({
+        success: true,
+        count: report.length,
+        totalCost,
+        data: report
+    });
+
+});
+
+// ======================================
+// Dashboard Analytics Report
+// ======================================
+const getDashboardReport = asyncHandler(async (req, res) => {
+
+    const dashboard = await Report.getDashboardReport();
+
+    res.status(200).json({
+        success: true,
+        data: dashboard
+    });
+
+});
+
 module.exports = {
     getAllocationReport,
-    getEmployeeAssetReport
+    getEmployeeAssetReport,
+    getMaintenanceReport,
+    getDashboardReport
 };

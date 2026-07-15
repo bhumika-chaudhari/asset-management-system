@@ -19,16 +19,34 @@ router.get(
     reportController.getAllocationReport
 );
 
+// ======================================
+// Employee Asset Report
+// ======================================
 router.get(
     "/employees",
     authenticate,
     authorize("Admin"),
     reportController.getEmployeeAssetReport
 );
+
+// ======================================
+// Maintenance Report
+// ======================================
 router.get(
     "/maintenance",
     authenticate,
     authorize("Admin"),
     reportController.getMaintenanceReport
 );
+
+// ======================================
+// Dashboard Report
+// ======================================
+router.get(
+    "/dashboard",
+    authenticate,
+    authorize("Admin"),
+    reportController.getDashboardReport
+);
+
 module.exports = router;
