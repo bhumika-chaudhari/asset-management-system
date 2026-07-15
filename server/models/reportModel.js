@@ -26,9 +26,38 @@ const getAllocationReport = async () => {
 
     return rows;
 };
+// ======================================
+// Employee Asset Report
+// ======================================
+const getEmployeeAssetReport = async () => {
 
+    const [rows] = await db.query(`
+        SELECT
+            e.id AS employee_id,
+            e.employee_code,
+            e.name AS employee_name,
+            e.department,
+            COUNT(a.id) AS total_assets
+        FROM employees e
+
+        LEFT JOIN allocations a
+            ON e.id = a.employee_id
+            AND a.status = 'Assigned'
+
+        GROUP BY
+            e.id,
+            e.employee_code,
+            e.name,
+            e.department
+
+        ORDER BY total_assets DESC
+    `);
+
+    return rows;
+};
 module.exports = {
-    getAllocationReport
+    getAllocationReport,
+    getEmployeeAssetReport
 };
 
 /*

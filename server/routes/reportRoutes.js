@@ -19,4 +19,10 @@ router.get(
     reportController.getAllocationReport
 );
 
+router.get(
+    "/employees",
+    authenticate,
+    authorize("Admin"),
+    reportController.getEmployeeAssetReport
+);
 module.exports = router;

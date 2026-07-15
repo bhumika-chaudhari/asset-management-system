@@ -15,7 +15,18 @@ const getAllocationReport = asyncHandler(async (req, res) => {
     });
 
 });
+const getEmployeeAssetReport = asyncHandler(async (req, res) => {
 
+    const report = await Report.getEmployeeAssetReport();
+
+    res.status(200).json({
+        success: true,
+        count: report.length,
+        data: report
+    });
+
+});
 module.exports = {
-    getAllocationReport
+    getAllocationReport,
+    getEmployeeAssetReport
 };
