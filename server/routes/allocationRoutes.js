@@ -22,11 +22,14 @@ router.post(
     allocationController.allocateAsset
 );
 
+
+
 router.put(
     "/:id/return",
     authenticate,
     authorize("Admin"),
     allocationController.returnAsset
 );
+
 
 module.exports = router;
