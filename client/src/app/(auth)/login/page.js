@@ -12,15 +12,17 @@ import {
 } from "lucide-react";
 
 export default function LoginPage() {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Login clicked");
+  };
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6">
 
       {/* Background Glow */}
       <motion.div
-        animate={{
-          x: [0, 40, 0],
-          y: [0, 20, 0],
-        }}
+        animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
         transition={{
           duration: 10,
           repeat: Infinity,
@@ -30,10 +32,7 @@ export default function LoginPage() {
       />
 
       <motion.div
-        animate={{
-          x: [0, -40, 0],
-          y: [0, -20, 0],
-        }}
+        animate={{ x: [0, -40, 0], y: [0, -20, 0] }}
         transition={{
           duration: 12,
           repeat: Infinity,
@@ -44,12 +43,12 @@ export default function LoginPage() {
 
       <div className="relative z-10 grid w-full max-w-7xl gap-16 lg:grid-cols-2">
 
-        {/* Left Section */}
+        {/* Left Side */}
         <motion.div
           initial={{ opacity: 0, x: -80 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="hidden flex-col justify-center text-white lg:flex"
+          className="hidden lg:flex flex-col justify-center text-white"
         >
           <h1 className="text-6xl font-extrabold leading-tight">
             Asset
@@ -59,27 +58,25 @@ export default function LoginPage() {
             System
           </h1>
 
-          <p className="mt-8 max-w-xl text-lg leading-8 text-slate-300">
-            Manage company assets, employee allocations,
-            maintenance schedules, and business reports
-            from one powerful dashboard.
+          <p className="mt-8 max-w-xl text-lg text-slate-300 leading-8">
+            Manage assets, employees, maintenance,
+            allocations and reports from one modern dashboard.
           </p>
 
           <div className="mt-14 space-y-8">
 
             <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-indigo-600/20 p-4">
+              <div className="rounded-2xl bg-indigo-500/20 p-4">
                 <ShieldCheck
                   className="text-indigo-400"
-                  size={30}
+                  size={28}
                 />
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold">
+                <h3 className="font-semibold text-lg">
                   Secure Authentication
                 </h3>
-
                 <p className="text-slate-400">
                   JWT Protected Login
                 </p>
@@ -87,37 +84,35 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-cyan-600/20 p-4">
+              <div className="rounded-2xl bg-cyan-500/20 p-4">
                 <Laptop
                   className="text-cyan-400"
-                  size={30}
+                  size={28}
                 />
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold">
+                <h3 className="font-semibold text-lg">
                   Asset Tracking
                 </h3>
-
                 <p className="text-slate-400">
-                  Monitor every company asset
+                  Track every company asset
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-emerald-600/20 p-4">
+              <div className="rounded-2xl bg-emerald-500/20 p-4">
                 <Users
                   className="text-emerald-400"
-                  size={30}
+                  size={28}
                 />
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold">
+                <h3 className="font-semibold text-lg">
                   Employee Allocation
                 </h3>
-
                 <p className="text-slate-400">
                   Assign and return assets easily
                 </p>
@@ -129,68 +124,47 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <motion.div
-          initial={{
-            opacity: 0,
-            x: 80,
-            scale: 0.95,
-          }}
-          animate={{
-            opacity: 1,
-            x: 0,
-            scale: 1,
-          }}
-          transition={{
-            duration: 0.8,
-            delay: 0.2,
-          }}
+          initial={{ opacity: 0, x: 80 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
           className="flex items-center justify-center"
         >
-          <motion.div
-            whileHover={{
-              y: -5,
-            }}
-            transition={{
-              duration: 0.25,
-            }}
-          >
-            <Card className="w-full max-w-md">
+          <Card className="w-full max-w-md">
 
-              <div className="mb-8 text-center">
+            <div className="mb-8 text-center">
+              <h2 className="text-4xl font-bold text-white">
+                Welcome Back
+              </h2>
 
-                <h2 className="text-4xl font-bold text-white">
-                  Welcome Back
-                </h2>
+              <p className="mt-2 text-slate-400">
+                Sign in to continue
+              </p>
+            </div>
 
-                <p className="mt-3 text-slate-300">
-                  Sign in to your account
-                </p>
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6"
+            >
+              <Input
+                label="Email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+              />
 
-              </div>
+              <Input
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+              />
 
-              <form className="space-y-6">
+              <Button type="submit">
+                Login
+              </Button>
+            </form>
 
-                <Input
-                  label="Email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email"
-                />
-
-                <Input
-                  label="Password"
-                  name="password"
-                  type="password"
-                  placeholder="Enter your password"
-                />
-
-                <Button type="submit">
-                  Login
-                </Button>
-
-              </form>
-
-            </Card>
-          </motion.div>
+          </Card>
         </motion.div>
 
       </div>
