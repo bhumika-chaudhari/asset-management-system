@@ -35,12 +35,13 @@ const employeeRoutes = require("./routes/employeeRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
 const allocationRoutes = require("./routes/allocationRoutes");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 app.use("/api/auth", authRoutes);
 
 app.use("/api/assets", assetRoutes);
 
 app.use("/api/employees", employeeRoutes);
-
+app.use("/api/reports", reportRoutes);
 app.use("/api/allocations", allocationRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use(errorHandler);
