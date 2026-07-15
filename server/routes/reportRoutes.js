@@ -25,4 +25,10 @@ router.get(
     authorize("Admin"),
     reportController.getEmployeeAssetReport
 );
+router.get(
+    "/maintenance",
+    authenticate,
+    authorize("Admin"),
+    reportController.getMaintenanceReport
+);
 module.exports = router;

@@ -55,9 +55,33 @@ const getEmployeeAssetReport = async () => {
 
     return rows;
 };
+// ======================================
+// Maintenance Report
+// ======================================
+const getMaintenanceReport = async () => {
+
+    const [rows] = await db.query(`
+        SELECT
+            m.id,
+            a.asset_name,
+            a.serial_number,
+            m.maintenance_date,
+            m.description,
+            m.cost,
+            m.status
+        FROM maintenance m
+        INNER JOIN assets a
+            ON m.asset_id = a.id
+        ORDER BY m.maintenance_date DESC
+    `);
+
+    return rows;
+
+};
 module.exports = {
     getAllocationReport,
-    getEmployeeAssetReport
+    getEmployeeAssetReport,
+    getMaintenanceReport
 };
 
 /*

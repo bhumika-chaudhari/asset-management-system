@@ -64,8 +64,29 @@ const completeMaintenance = asyncHandler(async (req, res) => {
     });
 
 });
+// ======================================
+// Maintenance Report
+// ======================================
+const getMaintenanceReport = asyncHandler(async (req, res) => {
+
+    const report = await Report.getMaintenanceReport();
+
+    const totalCost = report.reduce(
+        (sum, item) => sum + Number(item.cost),
+        0
+    );
+
+    res.status(200).json({
+        success: true,
+        count: report.length,
+        totalCost,
+        data: report
+    });
+
+});
 module.exports = {
     addMaintenance,
     getAllMaintenance,
-    completeMaintenance
+    completeMaintenance,
+    getMaintenanceReport
 };
