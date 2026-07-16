@@ -4,45 +4,68 @@ import { motion } from "framer-motion";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-
-import {
-  ShieldCheck,
-  Laptop,
-  Users,
-} from "lucide-react";
-
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { loginUser } from "@/services/authService";
+import { useAuth } from "@/context/AuthContext";
+import { ShieldCheck, Laptop, Users } from "lucide-react";
 export default function LoginPage() {
-  const handleSubmit = (e) => {
+  const router = useRouter();
+  const { login } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login clicked");
+
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await loginUser({
+        email,
+        password,
+      });
+
+      console.log("Login Response:", res);
+
+      login(res.token, res.user);
+
+      router.refresh();
+
+      toast.success(res.message);
+      router.replace("/dashboard");
+    } catch (err) {
+      console.error(err);
+
+      toast.error(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6">
-
-      {/* Background Glow */}
       <motion.div
         animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        transition={{ duration: 10, repeat: Infinity }}
         className="absolute left-0 top-0 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl"
       />
 
       <motion.div
         animate={{ x: [0, -40, 0], y: [0, -20, 0] }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        transition={{ duration: 12, repeat: Infinity }}
         className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl"
       />
 
       <div className="relative z-10 grid w-full max-w-7xl gap-16 lg:grid-cols-2">
-
         {/* Left Side */}
         <motion.div
           initial={{ opacity: 0, x: -80 }}
@@ -59,66 +82,45 @@ export default function LoginPage() {
           </h1>
 
           <p className="mt-8 max-w-xl text-lg text-slate-300 leading-8">
-            Manage assets, employees, maintenance,
-            allocations and reports from one modern dashboard.
+            Manage assets, employees, maintenance, allocations and reports from
+            one modern dashboard.
           </p>
 
           <div className="mt-14 space-y-8">
-
             <div className="flex items-center gap-5">
               <div className="rounded-2xl bg-indigo-500/20 p-4">
-                <ShieldCheck
-                  className="text-indigo-400"
-                  size={28}
-                />
+                <ShieldCheck className="text-indigo-400" size={28} />
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg">
-                  Secure Authentication
-                </h3>
-                <p className="text-slate-400">
-                  JWT Protected Login
-                </p>
+                <h3 className="font-semibold text-lg">Secure Authentication</h3>
+                <p className="text-slate-400">JWT Protected Login</p>
               </div>
             </div>
 
             <div className="flex items-center gap-5">
               <div className="rounded-2xl bg-cyan-500/20 p-4">
-                <Laptop
-                  className="text-cyan-400"
-                  size={28}
-                />
+                <Laptop className="text-cyan-400" size={28} />
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg">
-                  Asset Tracking
-                </h3>
-                <p className="text-slate-400">
-                  Track every company asset
-                </p>
+                <h3 className="font-semibold text-lg">Asset Tracking</h3>
+                <p className="text-slate-400">Track every company asset</p>
               </div>
             </div>
 
             <div className="flex items-center gap-5">
               <div className="rounded-2xl bg-emerald-500/20 p-4">
-                <Users
-                  className="text-emerald-400"
-                  size={28}
-                />
+                <Users className="text-emerald-400" size={28} />
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg">
-                  Employee Allocation
-                </h3>
+                <h3 className="font-semibold text-lg">Employee Allocation</h3>
                 <p className="text-slate-400">
                   Assign and return assets easily
                 </p>
               </div>
             </div>
-
           </div>
         </motion.div>
 
@@ -130,26 +132,20 @@ export default function LoginPage() {
           className="flex items-center justify-center"
         >
           <Card className="w-full max-w-md">
-
             <div className="mb-8 text-center">
-              <h2 className="text-4xl font-bold text-white">
-                Welcome Back
-              </h2>
+              <h2 className="text-4xl font-bold text-white">Welcome Back</h2>
 
-              <p className="mt-2 text-slate-400">
-                Sign in to continue
-              </p>
+              <p className="mt-2 text-slate-400">Sign in to continue</p>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
+            <form onSubmit={handleSubmit} className="space-y-6">
               <Input
                 label="Email"
                 name="email"
                 type="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
 
               <Input
@@ -157,18 +153,17 @@ export default function LoginPage() {
                 name="password"
                 type="password"
                 placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
 
-              <Button type="submit">
-                Login
+              <Button type="submit" disabled={loading}>
+                {loading ? "Signing In..." : "Login"}
               </Button>
             </form>
-
           </Card>
         </motion.div>
-
       </div>
-
     </div>
   );
 }
