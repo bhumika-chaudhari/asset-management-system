@@ -36,6 +36,8 @@ const errorHandler = require("./middleware/errorMiddleware");
 const allocationRoutes = require("./routes/allocationRoutes");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/api/assets", assetRoutes);
