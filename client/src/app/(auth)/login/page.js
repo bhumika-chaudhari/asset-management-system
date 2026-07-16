@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { loginUser } from "@/services/authService";
 import { useAuth } from "@/context/AuthContext";
-import { ShieldCheck, Laptop, Users } from "lucide-react";
+// Changed the floating background icons to Server, Network, and Fingerprint
+import { ShieldCheck, Laptop, Users, Server, Network, Fingerprint } from "lucide-react";
+
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
@@ -34,134 +36,227 @@ export default function LoginPage() {
         password,
       });
 
-      console.log("Login Response:", res);
-
       login(res.token, res.user);
-
       router.refresh();
-
       toast.success(res.message);
       router.replace("/dashboard");
     } catch (err) {
       console.error(err);
-
       toast.error(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
+  // Framer Motion Variants for Staggered Animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -30 },
+    show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 70 } },
+  };
+
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#070B14] p-6 font-sans">
+      {/* Cool Tech Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f1a_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f1a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+      {/* Background Animated Blobs */}
       <motion.div
-        animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        className="absolute left-0 top-0 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl"
+        animate={{ x: [0, 60, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute left-[-10%] top-[-10%] h-[500px] w-[500px] rounded-full bg-indigo-600/20 blur-[120px]"
+      />
+      <motion.div
+        animate={{ x: [0, -60, 0], y: [0, -30, 0], scale: [1, 1.5, 1] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[-10%] right-[-5%] h-[600px] w-[600px] rounded-full bg-cyan-600/10 blur-[120px]"
       />
 
+      {/* NEW Floating Animated "Asset Bodies" */}
       <motion.div
-        animate={{ x: [0, -40, 0], y: [0, -20, 0] }}
-        transition={{ duration: 12, repeat: Infinity }}
-        className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl"
-      />
+        animate={{ y: [-30, 30, -30], x: [-10, 10, -10], rotate: [0, 10, -10, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[15%] left-[40%] text-indigo-500/10"
+      >
+        <Server size={110} />
+      </motion.div>
+      <motion.div
+        animate={{ y: [25, -25, 25], rotate: [0, -15, 15, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-[25%] left-[8%] text-cyan-500/10"
+      >
+        <Network size={90} />
+      </motion.div>
+      <motion.div
+        animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[20%] right-[15%] text-emerald-500/20"
+      >
+        <Fingerprint size={130} />
+      </motion.div>
 
       <div className="relative z-10 grid w-full max-w-7xl gap-16 lg:grid-cols-2">
         {/* Left Side */}
         <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
           className="hidden lg:flex flex-col justify-center text-white"
         >
-          <h1 className="text-6xl font-extrabold leading-tight">
-            Asset
-            <br />
-            Management
-            <br />
-            System
-          </h1>
+          <motion.div variants={itemVariants}>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-sm font-medium text-indigo-300 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+              </span>
+              System Online v2.0
+            </div>
+            <h1 className="text-6xl font-extrabold leading-tight tracking-tight">
+              <span className="bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
+                Asset
+              </span>
+              <br />
+              Management
+              <br />
+              System
+            </h1>
 
-          <p className="mt-8 max-w-xl text-lg text-slate-300 leading-8">
-            Manage assets, employees, maintenance, allocations and reports from
-            one modern dashboard.
-          </p>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">
+              Manage assets, employees, maintenance, allocations, and generate
+              real-time reports from one modern dashboard.
+            </p>
+          </motion.div>
 
-          <div className="mt-14 space-y-8">
-            <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-indigo-500/20 p-4">
+          <div className="mt-12 space-y-6">
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, x: 10 }}
+              className="group flex cursor-pointer items-center gap-5 rounded-2xl border border-transparent p-3 transition-colors hover:border-slate-800 hover:bg-slate-900/50"
+            >
+              <div className="rounded-2xl bg-indigo-500/10 p-4 ring-1 ring-indigo-500/20 transition-all group-hover:bg-indigo-500/20 group-hover:ring-indigo-500/40">
                 <ShieldCheck className="text-indigo-400" size={28} />
               </div>
-
               <div>
-                <h3 className="font-semibold text-lg">Secure Authentication</h3>
-                <p className="text-slate-400">JWT Protected Login</p>
+                <h3 className="text-lg font-semibold text-slate-200 transition-colors group-hover:text-white">
+                  Secure Authentication
+                </h3>
+                <p className="text-sm text-slate-500">Military-grade JWT protection</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-cyan-500/20 p-4">
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, x: 10 }}
+              className="group flex cursor-pointer items-center gap-5 rounded-2xl border border-transparent p-3 transition-colors hover:border-slate-800 hover:bg-slate-900/50"
+            >
+              <div className="rounded-2xl bg-cyan-500/10 p-4 ring-1 ring-cyan-500/20 transition-all group-hover:bg-cyan-500/20 group-hover:ring-cyan-500/40">
                 <Laptop className="text-cyan-400" size={28} />
               </div>
-
               <div>
-                <h3 className="font-semibold text-lg">Asset Tracking</h3>
-                <p className="text-slate-400">Track every company asset</p>
+                <h3 className="text-lg font-semibold text-slate-200 transition-colors group-hover:text-white">
+                  Live Asset Tracking
+                </h3>
+                <p className="text-sm text-slate-500">Monitor hardware and software inventory</p>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center gap-5">
-              <div className="rounded-2xl bg-emerald-500/20 p-4">
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, x: 10 }}
+              className="group flex cursor-pointer items-center gap-5 rounded-2xl border border-transparent p-3 transition-colors hover:border-slate-800 hover:bg-slate-900/50"
+            >
+              <div className="rounded-2xl bg-emerald-500/10 p-4 ring-1 ring-emerald-500/20 transition-all group-hover:bg-emerald-500/20 group-hover:ring-emerald-500/40">
                 <Users className="text-emerald-400" size={28} />
               </div>
-
               <div>
-                <h3 className="font-semibold text-lg">Employee Allocation</h3>
-                <p className="text-slate-400">
-                  Assign and return assets easily
+                <h3 className="text-lg font-semibold text-slate-200 transition-colors group-hover:text-white">
+                  Smart Allocation
+                </h3>
+                <p className="text-sm text-slate-500">
+                  Frictionless employee assignment workflows
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
         {/* Login Card */}
         <motion.div
-          initial={{ opacity: 0, x: 80 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
           className="flex items-center justify-center"
         >
-          <Card className="w-full max-w-md">
-            <div className="mb-8 text-center">
-              <h2 className="text-4xl font-bold text-white">Welcome Back</h2>
+          <div className="relative w-full max-w-md group">
+            {/* Glowing border effect behind card */}
+            <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-indigo-500 to-cyan-500 opacity-20 blur-lg transition duration-1000 group-hover:opacity-40"></div>
+            
+            {/* Using the updated clean Card component */}
+            <Card className="relative z-10 w-full p-8">
+              <div className="mb-10 text-center">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10">
+                  <ShieldCheck className="text-cyan-400" size={32} />
+                </div>
+                <h2 className="text-3xl font-bold text-white tracking-tight">
+                  Welcome Back
+                </h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  Authenticate to access the registry
+                </p>
+              </div>
 
-              <p className="mt-2 text-slate-400">Sign in to continue</p>
-            </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Using the updated clean Input component */}
+                <Input
+                  label="Work Email"
+                  name="email"
+                  type="email"
+                  placeholder="admin@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+                <Input
+                  label="Password"
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
 
-              <Input
-                label="Password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-
-              <Button type="submit" disabled={loading}>
-                {loading ? "Signing In..." : "Login"}
-              </Button>
-            </form>
-          </Card>
+                <div className="pt-2 flex flex-col gap-4">
+                  {/* Using the updated clean Button component */}
+                  <Button 
+                    type="submit" 
+                    variant="primary"
+                    disabled={loading}
+                    className="w-full py-3"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="h-5 w-5 rounded-full border-2 border-white/30 border-t-white"
+                        />
+                        Authenticating...
+                      </span>
+                    ) : (
+                      "Access Dashboard"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          </div>
         </motion.div>
       </div>
     </div>

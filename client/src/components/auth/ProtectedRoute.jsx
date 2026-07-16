@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function ProtectedRoute({ children }) {
   const router = useRouter();
-
   const { user, loading } = useAuth();
 
   useEffect(() => {

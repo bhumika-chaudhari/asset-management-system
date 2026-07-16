@@ -1,84 +1,28 @@
-"use client";
+import { forwardRef, useId } from "react";
 
-import { useState } from "react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-
-export default function Input({
-  label,
-  type = "text",
-  placeholder = "",
-  name,
-  value,
-  defaultValue,
-  onChange,
-  onBlur,
-  error,
-}) {
-  const [showPassword, setShowPassword] = useState(false);
-
-  const inputType =
-    type === "password"
-      ? showPassword
-        ? "text"
-        : "password"
-      : type;
-
-  const inputProps = {
-    id: name,
-    name,
-    type: inputType,
-    placeholder,
-    onBlur,
-    autoComplete:
-      type === "password" ? "current-password" : "email",
-  };
-
-  // Controlled input
-  if (value !== undefined) {
-    inputProps.value = value;
-    inputProps.onChange = onChange;
-  } else {
-    // Uncontrolled input
-    inputProps.defaultValue = defaultValue || "";
-  }
+const Input = forwardRef(({ label, className = "", id, error, ...props }, ref) => {
+  const generatedId = useId();
+  const inputId = id || generatedId;
 
   return (
-    <div className="space-y-2">
+    <div className="flex w-full flex-col space-y-1.5">
       {label && (
-        <label
-          htmlFor={name}
-          className="block text-sm font-medium text-slate-200"
-        >
+        <label htmlFor={inputId} className="text-sm font-medium text-slate-300">
           {label}
         </label>
       )}
-
-      <div className="relative">
-        <input
-          {...inputProps}
-          className={`w-full rounded-xl border bg-slate-900/60 px-4 py-3 ${
-            type === "password" ? "pr-12" : ""
-          } text-white placeholder:text-slate-400 outline-none transition-all duration-300 ${
-            error
-              ? "border-red-500 focus:ring-2 focus:ring-red-500/40"
-              : "border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40"
-          }`}
-        />
-
-        {type === "password" && (
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-          >
-            {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-          </button>
-        )}
-      </div>
-
-      {error && (
-        <p className="text-sm text-red-400">{error}</p>
-      )}
+      <input
+        id={inputId}
+        ref={ref}
+        className={`w-full rounded-xl border border-white/5 bg-slate-900/50 px-4 py-3 text-white placeholder-slate-500 backdrop-blur-sm transition-all focus:border-cyan-500/50 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 disabled:cursor-not-allowed disabled:opacity-50 ${
+          error ? "border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20" : ""
+        } ${className}`}
+        {...props}
+      />
+      {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
   );
-}
+});
+
+Input.displayName = "Input";
+export default Input;
