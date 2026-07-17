@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { X, PackagePlus } from "lucide-react";
-import { createAsset } from "@/services/assetService";
+import { X, PackagePlus, Edit } from "lucide-react";
+import { createAsset, updateAsset } from "@/services/assetService";
 
-export default function AddAssetModal({ onClose, onSuccess }) {
+export default function AssetModal({ asset, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     asset_name: "",
     category: "",
     serial_number: "",
@@ -18,24 +18,47 @@ export default function AddAssetModal({ onClose, onSuccess }) {
     location: "",
   });
 
+  // Step 7: Initialize from asset if editing
+  useEffect(() => {
+    if (asset) {
+      setFormData({
+        asset_name: asset.asset_name || "",
+        category: asset.category || "",
+        serial_number: asset.serial_number || "",
+        purchase_date: asset.purchase_date ? asset.purchase_date.split("T")[0] : "",
+        status: asset.status || "Available",
+        asset_condition: asset.asset_condition || "Good",
+        location: asset.location || "",
+      });
+    }
+  }, [asset]);
+
   function handleChange(e) {
-    setForm({
-      ...form,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
   }
 
+  // Step 8: Call create or update based on asset prop
   async function handleSubmit(e) {
     e.preventDefault();
 
     try {
       setLoading(true);
-      await createAsset(form);
-      toast.success("Asset added successfully");
+      
+      if (asset) {
+        await updateAsset(asset.id, formData);
+        toast.success("Asset updated successfully");
+      } else {
+        await createAsset(formData);
+        toast.success("Asset added successfully");
+      }
+      
       onSuccess();
     } catch (error) {
       console.error(error);
-      toast.error(error.response?.data?.message || "Failed to add asset");
+      toast.error(error.response?.data?.message || `Failed to ${asset ? "update" : "add"} asset`);
     } finally {
       setLoading(false);
     }
@@ -88,10 +111,10 @@ export default function AddAssetModal({ onClose, onSuccess }) {
                 justifyContent: "center",
               }}
             >
-              <PackagePlus className="text-cyan-400" size={20} />
+              {asset ? <Edit className="text-cyan-400" size={20} /> : <PackagePlus className="text-cyan-400" size={20} />}
             </div>
             <h2 className="text-xl font-bold tracking-tight text-white">
-              Add New Asset
+              {asset ? "Edit Asset" : "Add New Asset"}
             </h2>
           </div>
 
@@ -122,7 +145,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <input
               name="asset_name"
               placeholder="e.g., MacBook Pro M3"
-              value={form.asset_name}
+              value={formData.asset_name}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white placeholder-slate-500 outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -135,7 +158,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <input
               name="category"
               placeholder="e.g., Laptop, Monitor"
-              value={form.category}
+              value={formData.category}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white placeholder-slate-500 outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -148,7 +171,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <input
               name="serial_number"
               placeholder="Enter unique serial"
-              value={form.serial_number}
+              value={formData.serial_number}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-mono text-white placeholder-slate-500 outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -161,7 +184,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <input
               type="date"
               name="purchase_date"
-              value={form.purchase_date}
+              value={formData.purchase_date}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -173,7 +196,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <label className="text-sm font-medium text-slate-300">Status</label>
             <select
               name="status"
-              value={form.status}
+              value={formData.status}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -188,7 +211,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <label className="text-sm font-medium text-slate-300">Condition</label>
             <select
               name="asset_condition"
-              value={form.asset_condition}
+              value={formData.asset_condition}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -204,7 +227,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
             <input
               name="location"
               placeholder="e.g., HQ Office, Remote, Server Room A"
-              value={form.location}
+              value={formData.location}
               onChange={handleChange}
               className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white placeholder-slate-500 outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
               style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
@@ -244,7 +267,7 @@ export default function AddAssetModal({ onClose, onSuccess }) {
                   Saving...
                 </div>
               ) : (
-                "Save Asset"
+                asset ? "Update Asset" : "Save Asset"
               )}
             </button>
           </div>
