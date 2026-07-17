@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Plus, Search } from "lucide-react";
-import { getAssets, getAssetById } from "@/services/assetService";
+import { Plus, Search, AlertTriangle, Trash2, Edit2 } from "lucide-react";
+import { getAssets, getAssetById, deleteAsset } from "@/services/assetService";
 import AssetModal from "./components/AssetModal";
+
 export default function AssetsPage() {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,9 +19,12 @@ export default function AssetsPage() {
 
   const [showAddModal, setShowAddModal] = useState(false);
   
-  // Step 4: Add new states for editing
+  // States for editing
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+
+  // States for custom Delete Modal
+  const [assetToDelete, setAssetToDelete] = useState(null);
 
   useEffect(() => {
     fetchAssets();
@@ -51,16 +55,37 @@ export default function AssetsPage() {
     }
   }
 
-  // Step 5: Add handleEdit function
+  // Handle Edit
   async function handleEdit(id) {
     try {
       const res = await getAssetById(id);
-      // If backend returns { success, data }, use res.data. 
-      // If it returns the asset directly, use res.
       setSelectedAsset(res.data || res);
       setShowEditModal(true);
     } catch (error) {
       toast.error("Failed to load asset details");
+    }
+  }
+
+  // Handle Delete (Called from inside the confirmation modal)
+  async function handleDelete() {
+    if (!assetToDelete) return;
+
+    try {
+      await deleteAsset(assetToDelete.id);
+      toast.success("Asset deleted successfully");
+      
+      // Close modal and refresh list
+      setAssetToDelete(null);
+      
+      // If we delete the last item on a page, go back a page
+      if (assets.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchAssets();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Failed to delete asset");
     }
   }
 
@@ -159,14 +184,14 @@ export default function AssetsPage() {
             {/* Table Header */}
             <thead className="border-b border-white/10 bg-white/5">
               <tr className="text-left text-xs font-medium uppercase tracking-wider text-slate-400">
-  <th style={{ padding: "1.25rem 1.5rem" }}>Asset Name</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Category</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Serial Number</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Status</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Condition</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Location</th>
-  <th style={{ padding: "1.25rem 1.5rem" }}>Actions</th>
-</tr>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Asset Name</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Category</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Serial Number</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Status</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Condition</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Location</th>
+                <th style={{ padding: "1.25rem 1.5rem" }}>Actions</th>
+              </tr>
             </thead>
 
             {/* Table Body */}
@@ -192,7 +217,7 @@ export default function AssetsPage() {
               ) : assets.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan="7"
                     className="text-center text-slate-500"
                     style={{ padding: "4rem" }}
                   >
@@ -239,38 +264,52 @@ export default function AssetsPage() {
                       >
                         {asset.status}
                       </span>
-                    </td><td style={{ padding: "1.25rem 1.5rem" }}>
-  <span
-    className={`font-medium ring-1 ring-inset ${
-      asset.asset_condition === "Good"
-        ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
-        : asset.asset_condition === "Damaged"
-          ? "bg-red-500/10 text-red-400 ring-red-500/20"
-          : "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20"
-    }`}
-    style={{
-      display: "inline-flex",
-      alignItems: "center",
-      borderRadius: "9999px",
-      padding: "0.125rem 0.625rem",
-      fontSize: "0.75rem",
-    }}
-  >
-    {asset.asset_condition}
-  </span>
-</td>
+                    </td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}>
+                      <span
+                        className={`font-medium ring-1 ring-inset ${
+                          asset.asset_condition === "Good"
+                            ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
+                            : asset.asset_condition === "Damaged"
+                              ? "bg-red-500/10 text-red-400 ring-red-500/20"
+                              : "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20"
+                        }`}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          borderRadius: "9999px",
+                          padding: "0.125rem 0.625rem",
+                          fontSize: "0.75rem",
+                        }}
+                      >
+                        {asset.asset_condition}
+                      </span>
+                    </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>
                       {asset.location}
                     </td>
-                    {/* Step 3: Actions Cell with Edit Button */}
+
+                    {/* Actions Cell (Edit + Delete) */}
                     <td style={{ padding: "1.25rem 1.5rem" }}>
-                      <button
-                        onClick={() => handleEdit(asset.id)}
-                        className="rounded-lg bg-cyan-600/20 text-cyan-400 font-medium transition-colors hover:bg-cyan-600/40"
-                        style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
-                      >
-                        Edit
-                      </button>
+                      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                        <button
+                          onClick={() => handleEdit(asset.id)}
+                          className="rounded-lg bg-cyan-600/10 text-cyan-400 transition-colors hover:bg-cyan-600/30 ring-1 ring-inset ring-cyan-500/20"
+                          style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.75rem", fontSize: "0.75rem", fontWeight: "600" }}
+                        >
+                          <Edit2 size={14} />
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() => setAssetToDelete(asset)}
+                          className="rounded-lg bg-red-600/10 text-red-400 transition-colors hover:bg-red-600/30 ring-1 ring-inset ring-red-500/20"
+                          style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.75rem", fontSize: "0.75rem", fontWeight: "600" }}
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -339,7 +378,71 @@ export default function AssetsPage() {
           }}
         />
       )}
+
+      {/* CUSTOM DELETE CONFIRMATION MODAL */}
+      {assetToDelete && (
+        <div
+          className="bg-black/60 backdrop-blur-sm"
+          style={{
+            position: "fixed",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            zIndex: 60,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1.5rem",
+          }}
+        >
+          <div
+            className="rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl backdrop-blur-xl"
+            style={{
+              width: "100%",
+              maxWidth: "24rem",
+              display: "flex",
+              flexDirection: "column",
+              padding: "2rem",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "1rem" }}>
+              <div 
+                className="rounded-full bg-red-500/10 ring-1 ring-red-500/20" 
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "4rem", width: "4rem" }}
+              >
+                <AlertTriangle className="text-red-500" size={32} />
+              </div>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <h2 className="text-xl font-bold text-white">Delete Asset</h2>
+                <p className="text-sm text-slate-400" style={{ lineHeight: "1.5" }}>
+                  Are you sure you want to delete <span className="font-bold text-white">{assetToDelete.asset_name}</span>? This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem", width: "100%" }}>
+              <button
+                onClick={() => setAssetToDelete(null)}
+                className="rounded-xl border border-white/10 bg-slate-900/50 font-medium text-white transition-colors hover:bg-slate-800"
+                style={{ flex: 1, padding: "0.75rem" }}
+              >
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleDelete}
+                className="rounded-xl bg-red-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:bg-red-500 hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]"
+                style={{ flex: 1, padding: "0.75rem" }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
- 
