@@ -26,22 +26,25 @@ const employeeValidation = [
         .withMessage("Valid email is required"),
 
     body("phone")
-        .isLength({ min: 10, max: 10 })
-        .withMessage("Phone must be 10 digits")
+  .matches(/^(\+91)?[6-9]\d{9}$/)
+  .withMessage("Enter a valid Indian mobile number")
 
 ];
 
 const validate = (req, res, next) => {
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
 
+        console.log("Validation Errors:", errors.array());
+        console.log("Request Body:", req.body);
+
         return res.status(400).json({
             success: false,
-            errors: errors.array()
+            message: "Validation Failed",
+            errors: errors.array(),
+            body: req.body
         });
-
     }
 
     next();
