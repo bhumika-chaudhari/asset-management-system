@@ -1,13 +1,52 @@
 const db = require("../config/db");
 
 // Get all employees
-const getAllEmployees = async () => {
+const getAllEmployees = async (filters) => {
 
-    const [rows] = await db.query(
-        "SELECT * FROM employees ORDER BY id DESC"
-    );
+    let sql = "SELECT * FROM employees WHERE 1=1";
+    let countSql = "SELECT COUNT(*) AS total FROM employees WHERE 1=1";
 
-    return rows;
+    let values = [];
+    let countValues = [];
+
+    if (filters.search) {
+        sql += `
+            AND (
+                name LIKE ?
+                OR employee_code LIKE ?
+                OR department LIKE ?
+                OR designation LIKE ?
+            )
+        `;
+
+        countSql += `
+            AND (
+                name LIKE ?
+                OR employee_code LIKE ?
+                OR department LIKE ?
+                OR designation LIKE ?
+            )
+        `;
+
+        const keyword = `%${filters.search}%`;
+
+        values.push(keyword, keyword, keyword, keyword);
+        countValues.push(keyword, keyword, keyword, keyword);
+    }
+
+    sql += " ORDER BY id DESC LIMIT ? OFFSET ?";
+
+    values.push(filters.limit);
+    values.push(filters.offset);
+
+    const [rows] = await db.query(sql, values);
+
+    const [[count]] = await db.query(countSql, countValues);
+
+    return {
+        employees: rows,
+        total: count.total,
+    };
 };
 
 // Get employee by ID

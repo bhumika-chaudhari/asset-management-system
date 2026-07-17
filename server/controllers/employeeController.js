@@ -1,29 +1,33 @@
 const Employee = require("../models/employeeModel");
-
+const asyncHandler=require("../utils/asyncHandler");
 // Get all employees
-const getEmployees = async (req, res) => {
+const getEmployees = asyncHandler(async (req, res) => {
 
-    try {
+    const page = Number(req.query.page) || 1;
 
-        const employees = await Employee.getAllEmployees();
+    const limit = Number(req.query.limit) || 5;
 
-        res.status(200).json({
-            success: true,
-            count: employees.length,
-            data: employees
-        });
+    const offset = (page - 1) * limit;
 
-    } catch (error) {
+    const search = req.query.search || "";
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    const result = await Employee.getAllEmployees({
+        page,
+        limit,
+        offset,
+        search,
+    });
 
-    }
+    res.status(200).json({
+        success: true,
+        page,
+        limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit),
+        data: result.employees,
+    });
 
-};
-
+});
 // Get employee by ID
 const getEmployee = async (req, res) => {
 
