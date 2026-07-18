@@ -17,22 +17,25 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
   }, [open]);
 
   async function fetchAssets() {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await getAssets({
-        page: 1,
-        limit: 1000,
-      });
+    const res = await getAssets({
+      page: 1,
+      limit: 1000,
+    });
 
-      setAssets(res.data.filter((asset) => asset.status === "Available"));
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load assets");
-    } finally {
-      setLoading(false);
-    }
+    console.log("Assets API Response:", res);
+    console.log("Assets:", res.data);
+
+    setAssets(res.data);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load assets");
+  } finally {
+    setLoading(false);
   }
+}
 
   const filteredAssets = useMemo(() => {
     return assets.filter((asset) => {
