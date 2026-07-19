@@ -1,7 +1,10 @@
 const Allocation = require("../models/allocationModel");
 const asyncHandler = require("../utils/asyncHandler");
+const { logAction } = require("../utils/auditLogger");
 
+// ======================================
 // Allocate Asset
+// ======================================
 const allocateAsset = asyncHandler(async (req, res) => {
 
     const {
@@ -23,6 +26,15 @@ const allocateAsset = asyncHandler(async (req, res) => {
         assigned_date
     });
 
+    // Blockchain Audit Log
+    await logAction({
+        action: "ALLOCATE",
+        entity: "Allocation",
+        entity_id: result.insertId,
+        description: `Allocated Asset ${asset_id} to Employee ${employee_id}`,
+        user_id: req.user.id,
+    });
+
     res.status(201).json({
         success: true,
         message: "Asset allocated successfully.",
@@ -31,7 +43,9 @@ const allocateAsset = asyncHandler(async (req, res) => {
 
 });
 
+// ======================================
 // Get All Allocations
+// ======================================
 const getAllocations = asyncHandler(async (req, res) => {
 
     const allocations = await Allocation.getAllAllocations();
@@ -44,12 +58,23 @@ const getAllocations = asyncHandler(async (req, res) => {
 
 });
 
+// ======================================
 // Return Asset
+// ======================================
 const returnAsset = asyncHandler(async (req, res) => {
 
     const { id } = req.params;
 
     await Allocation.returnAsset(id);
+
+    // Blockchain Audit Log
+    await logAction({
+        action: "RETURN",
+        entity: "Allocation",
+        entity_id: id,
+        description: `Returned Allocation ${id}`,
+        user_id: req.user.id,
+    });
 
     res.status(200).json({
         success: true,

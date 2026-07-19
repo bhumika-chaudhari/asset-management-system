@@ -1,5 +1,6 @@
 const Maintenance = require("../models/maintenanceModel");
 const asyncHandler = require("../utils/asyncHandler");
+const { logAction } = require("../utils/auditLogger");
 
 // ======================================
 // Add Maintenance Record
@@ -27,6 +28,15 @@ const addMaintenance = asyncHandler(async (req, res) => {
         description,
         cost,
         status
+    });
+
+    // Blockchain Audit Log
+    await logAction({
+        action: "CREATE",
+        entity: "Maintenance",
+        entity_id: result.insertId,
+        description: `Maintenance created for Asset ID ${asset_id}`,
+        user_id: req.user.id,
     });
 
     res.status(201).json({
@@ -60,6 +70,15 @@ const completeMaintenance = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     await Maintenance.completeMaintenance(id);
+
+    // Blockchain Audit Log
+    await logAction({
+        action: "COMPLETE",
+        entity: "Maintenance",
+        entity_id: id,
+        description: `Completed Maintenance ID ${id}`,
+        user_id: req.user.id,
+    });
 
     res.status(200).json({
         success: true,

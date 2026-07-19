@@ -1,14 +1,15 @@
 const Employee = require("../models/employeeModel");
-const asyncHandler=require("../utils/asyncHandler");
-// Get all employees
+const asyncHandler = require("../utils/asyncHandler");
+const { logAction } = require("../utils/auditLogger");
+
+// ======================================
+// Get All Employees
+// ======================================
 const getEmployees = asyncHandler(async (req, res) => {
 
     const page = Number(req.query.page) || 1;
-
     const limit = Number(req.query.limit) || 5;
-
     const offset = (page - 1) * limit;
-
     const search = req.query.search || "";
 
     const result = await Employee.getAllEmployees({
@@ -28,7 +29,10 @@ const getEmployees = asyncHandler(async (req, res) => {
     });
 
 });
-// Get employee by ID
+
+// ======================================
+// Get Employee by ID
+// ======================================
 const getEmployee = async (req, res) => {
 
     try {
@@ -36,12 +40,10 @@ const getEmployee = async (req, res) => {
         const employee = await Employee.getEmployeeById(req.params.id);
 
         if (employee.length === 0) {
-
             return res.status(404).json({
                 success: false,
                 message: "Employee not found"
             });
-
         }
 
         res.status(200).json({
@@ -60,12 +62,23 @@ const getEmployee = async (req, res) => {
 
 };
 
-// Create employee
+// ======================================
+// Create Employee
+// ======================================
 const createEmployee = async (req, res) => {
 
     try {
 
         const result = await Employee.createEmployee(req.body);
+
+        // Blockchain Audit Log
+        await logAction({
+            action: "CREATE",
+            entity: "Employee",
+            entity_id: result.insertId,
+            description: `Created Employee: ${req.body.name}`,
+            user_id: req.user.id,
+        });
 
         res.status(201).json({
             success: true,
@@ -84,7 +97,9 @@ const createEmployee = async (req, res) => {
 
 };
 
-// Update employee
+// ======================================
+// Update Employee
+// ======================================
 const updateEmployee = async (req, res) => {
 
     try {
@@ -95,13 +110,20 @@ const updateEmployee = async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-
             return res.status(404).json({
                 success: false,
                 message: "Employee not found"
             });
-
         }
+
+        // Blockchain Audit Log
+        await logAction({
+            action: "UPDATE",
+            entity: "Employee",
+            entity_id: req.params.id,
+            description: `Updated Employee: ${req.body.name}`,
+            user_id: req.user.id,
+        });
 
         res.status(200).json({
             success: true,
@@ -119,7 +141,9 @@ const updateEmployee = async (req, res) => {
 
 };
 
-// Delete employee
+// ======================================
+// Delete Employee
+// ======================================
 const deleteEmployee = async (req, res) => {
 
     try {
@@ -127,13 +151,20 @@ const deleteEmployee = async (req, res) => {
         const result = await Employee.deleteEmployee(req.params.id);
 
         if (result.affectedRows === 0) {
-
             return res.status(404).json({
                 success: false,
                 message: "Employee not found"
             });
-
         }
+
+        // Blockchain Audit Log
+        await logAction({
+            action: "DELETE",
+            entity: "Employee",
+            entity_id: req.params.id,
+            description: "Deleted Employee",
+            user_id: req.user.id,
+        });
 
         res.status(200).json({
             success: true,

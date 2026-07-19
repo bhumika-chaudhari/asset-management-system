@@ -1,7 +1,10 @@
-
 const Asset = require("../models/assetModel");
 const asyncHandler = require("../utils/asyncHandler");
+const { logAction } = require("../utils/auditLogger");
 
+// ======================================
+// Get All Assets
+// ======================================
 const getAllAssets = asyncHandler(async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
@@ -29,9 +32,14 @@ const getAllAssets = asyncHandler(async (req, res) => {
     });
 
 });
-// GET asset by ID
+
+// ======================================
+// Get Asset by ID
+// ======================================
 const getAsset = async (req, res) => {
+
     try {
+
         const asset = await Asset.getAssetById(req.params.id);
 
         if (asset.length === 0) {
@@ -47,19 +55,35 @@ const getAsset = async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             success: false,
             message: "Failed to fetch asset"
         });
+
     }
+
 };
 
-// CREATE asset
+// ======================================
+// Create Asset
+// ======================================
 const createAsset = async (req, res) => {
+
     try {
+
         const result = await Asset.addAsset(req.body);
+
+        // Blockchain Audit Log
+        await logAction({
+            action: "CREATE",
+            entity: "Asset",
+            entity_id: result.insertId,
+            description: `Created Asset: ${req.body.asset_name}`,
+            user_id: req.user.id,
+        });
 
         res.status(201).json({
             success: true,
@@ -68,18 +92,25 @@ const createAsset = async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             success: false,
             message: "Failed to create asset"
         });
+
     }
+
 };
 
-// UPDATE asset
+// ======================================
+// Update Asset
+// ======================================
 const updateAsset = async (req, res) => {
+
     try {
+
         const result = await Asset.updateAsset(req.params.id, req.body);
 
         if (result.affectedRows === 0) {
@@ -89,24 +120,40 @@ const updateAsset = async (req, res) => {
             });
         }
 
+        // Blockchain Audit Log
+        await logAction({
+            action: "UPDATE",
+            entity: "Asset",
+            entity_id: req.params.id,
+            description: `Updated Asset: ${req.body.asset_name}`,
+            user_id: req.user.id,
+        });
+
         res.status(200).json({
             success: true,
             message: "Asset updated successfully"
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             success: false,
             message: "Failed to update asset"
         });
+
     }
+
 };
 
-// DELETE asset
+// ======================================
+// Delete Asset
+// ======================================
 const deleteAsset = async (req, res) => {
+
     try {
+
         const result = await Asset.deleteAsset(req.params.id);
 
         if (result.affectedRows === 0) {
@@ -116,19 +163,31 @@ const deleteAsset = async (req, res) => {
             });
         }
 
+        // Blockchain Audit Log
+        await logAction({
+            action: "DELETE",
+            entity: "Asset",
+            entity_id: req.params.id,
+            description: "Deleted Asset",
+            user_id: req.user.id,
+        });
+
         res.status(200).json({
             success: true,
             message: "Asset deleted successfully"
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             success: false,
             message: "Failed to delete asset"
         });
+
     }
+
 };
 
 module.exports = {
