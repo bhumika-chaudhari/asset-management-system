@@ -37,6 +37,9 @@ const allocationRoutes = require("./routes/allocationRoutes");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const auditRoutes = require("./routes/auditRoutes");
+
+app.use("/api/audit", auditRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/auth", authRoutes);
 

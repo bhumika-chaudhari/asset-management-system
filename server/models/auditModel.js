@@ -58,13 +58,11 @@ const createAuditLog = async (audit) => {
 
 const getAuditLogs = async () => {
 
-    const [rows] = await db.query(
-        `
+    const [rows] = await db.query(`
         SELECT *
         FROM audit_logs
-        ORDER BY id DESC
-        `
-    );
+        ORDER BY id ASC
+    `);
 
     return rows;
 };

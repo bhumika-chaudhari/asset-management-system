@@ -10,6 +10,7 @@ import {
   ClipboardList,
   Wrench,
   BarChart3,
+  ShieldCheck,
   Settings,
   LogOut,
   Bell,
@@ -28,6 +29,7 @@ export default function DashboardLayout({ children }) {
     { title: "Allocations", href: "/allocations", icon: ClipboardList },
     { title: "Maintenance", href: "/maintenance", icon: Wrench },
     { title: "Reports", href: "/reports", icon: BarChart3 },
+    { title: "Audit Logs", href: "/audit", icon: ShieldCheck },
     { title: "Settings", href: "/settings", icon: Settings },
   ];
 
@@ -101,7 +103,8 @@ export default function DashboardLayout({ children }) {
         >
           {menu.map((item) => {
             const Icon = item.icon;
-            const active = pathname === item.href;
+            // Handle sub-paths so the menu stays active (e.g., /audit/details)
+            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -160,7 +163,7 @@ export default function DashboardLayout({ children }) {
             display: "flex", 
             height: "5rem", 
             alignItems: "center", 
-            justifyContent: "between", 
+            justifyContent: "space-between", 
             padding: "0 2rem", 
             flexShrink: 0,
             width: "100%",

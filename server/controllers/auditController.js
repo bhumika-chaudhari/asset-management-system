@@ -34,47 +34,45 @@ const verifyBlockchain = asyncHandler(async (req, res) => {
 
     let previousHash = "GENESIS_BLOCK";
 
-    for (const block of logs.reverse()) {
+    for (const block of logs) {
 
-        const blockData = JSON.stringify({
-            action: block.action,
-            entity: block.entity,
-            entity_id: block.entity_id,
-            description: block.description,
-            user_id: block.user_id,
-            previous_hash: block.previous_hash
-        });
-
-        const calculatedHash = generateHash(blockData);
-
+        // Verify chain link
         if (block.previous_hash !== previousHash) {
-
-            return res.status(400).json({
-                success: false,
+            return res.status(200).json({
+                success: true,
                 valid: false,
-                message: `Blockchain broken at block ${block.id}. Previous hash mismatch.`
+                message: `Blockchain broken at Block #${block.id}`
             });
-
         }
 
-        if (block.current_hash !== calculatedHash) {
+        // Recalculate current hash
+        const recalculatedHash = generateHash(
+            JSON.stringify({
+                action: block.action,
+                entity: block.entity,
+                entity_id: block.entity_id,
+                description: block.description,
+                user_id: block.user_id,
+                previous_hash: block.previous_hash
+            })
+        );
 
-            return res.status(400).json({
-                success: false,
+        // Verify block hash
+        if (recalculatedHash !== block.current_hash) {
+            return res.status(200).json({
+                success: true,
                 valid: false,
-                message: `Block ${block.id} has been tampered with.`
+                message: `Block #${block.id} has been tampered.`
             });
-
         }
 
         previousHash = block.current_hash;
-
     }
 
     res.status(200).json({
         success: true,
         valid: true,
-        message: "Blockchain integrity verified successfully."
+        message: "Blockchain verified successfully."
     });
 
 });
