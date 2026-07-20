@@ -3,7 +3,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const { logAction } = require("../utils/auditLogger");
 
 // ======================================
-// Add Maintenance Record
+// Add Maintenance
 // ======================================
 const addMaintenance = asyncHandler(async (req, res) => {
 
@@ -22,6 +22,16 @@ const addMaintenance = asyncHandler(async (req, res) => {
         });
     }
 
+    // Prevent duplicate maintenance
+    const existing = await Maintenance.getActiveMaintenance(asset_id);
+
+    if (existing) {
+        return res.status(400).json({
+            success: false,
+            message: "This asset is already under maintenance."
+        });
+    }
+
     const result = await Maintenance.addMaintenance({
         asset_id,
         maintenance_date,
@@ -30,7 +40,6 @@ const addMaintenance = asyncHandler(async (req, res) => {
         status
     });
 
-    // Blockchain Audit Log
     await logAction({
         action: "CREATE",
         entity: "Maintenance",
@@ -48,7 +57,7 @@ const addMaintenance = asyncHandler(async (req, res) => {
 });
 
 // ======================================
-// Get All Maintenance Records
+// Get All Maintenance
 // ======================================
 const getAllMaintenance = asyncHandler(async (req, res) => {
 
@@ -71,7 +80,6 @@ const completeMaintenance = asyncHandler(async (req, res) => {
 
     await Maintenance.completeMaintenance(id);
 
-    // Blockchain Audit Log
     await logAction({
         action: "COMPLETE",
         entity: "Maintenance",

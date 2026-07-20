@@ -34,177 +34,138 @@ const getAllAssets = asyncHandler(async (req, res) => {
 });
 
 // ======================================
-// Get Asset by ID
+// Get Asset By ID
 // ======================================
-const getAsset = async (req, res) => {
+const getAsset = asyncHandler(async (req, res) => {
 
-    try {
+    const asset = await Asset.getAssetById(req.params.id);
 
-        const asset = await Asset.getAssetById(req.params.id);
-
-        if (asset.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Asset not found"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: asset[0]
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
+    if (asset.length === 0) {
+        return res.status(404).json({
             success: false,
-            message: "Failed to fetch asset"
+            message: "Asset not found"
         });
-
     }
 
-};
+    res.status(200).json({
+        success: true,
+        data: asset[0]
+    });
+
+});
 
 // ======================================
 // Create Asset
 // ======================================
-const createAsset = async (req, res) => {
+const createAsset = asyncHandler(async (req, res) => {
 
-    try {
+    const result = await Asset.addAsset(req.body);
 
-        const result = await Asset.addAsset(req.body);
+    await logAction({
+        action: "CREATE",
+        entity: "Asset",
+        entity_id: result.insertId,
+        description: `Created Asset: ${req.body.asset_name}`,
+        user_id: req.user.id,
+    });
 
-        // Blockchain Audit Log
-        await logAction({
-            action: "CREATE",
-            entity: "Asset",
-            entity_id: result.insertId,
-            description: `Created Asset: ${req.body.asset_name}`,
-            user_id: req.user.id,
-        });
+    res.status(201).json({
+        success: true,
+        message: "Asset created successfully",
+        assetId: result.insertId
+    });
 
-        res.status(201).json({
-            success: true,
-            message: "Asset created successfully",
-            assetId: result.insertId
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to create asset"
-        });
-
-    }
-
-};
+});
 
 // ======================================
 // Update Asset
 // ======================================
-const updateAsset = async (req, res) => {
+const updateAsset = asyncHandler(async (req, res) => {
 
-    try {
+    const result = await Asset.updateAsset(req.params.id, req.body);
 
-        const result = await Asset.updateAsset(req.params.id, req.body);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Asset not found"
-            });
-        }
-
-        // Blockchain Audit Log
-        await logAction({
-            action: "UPDATE",
-            entity: "Asset",
-            entity_id: req.params.id,
-            description: `Updated Asset: ${req.body.asset_name}`,
-            user_id: req.user.id,
-        });
-
-        res.status(200).json({
-            success: true,
-            message: "Asset updated successfully"
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
+    if (result.affectedRows === 0) {
+        return res.status(404).json({
             success: false,
-            message: "Failed to update asset"
+            message: "Asset not found"
         });
-
     }
 
-};
+    await logAction({
+        action: "UPDATE",
+        entity: "Asset",
+        entity_id: req.params.id,
+        description: `Updated Asset: ${req.body.asset_name}`,
+        user_id: req.user.id,
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "Asset updated successfully"
+    });
+
+});
 
 // ======================================
 // Delete Asset
 // ======================================
-const deleteAsset = async (req, res) => {
+const deleteAsset = asyncHandler(async (req, res) => {
 
-    try {
+    // Check active allocation
+    const activeAllocation =
+        await Asset.getActiveAllocation(req.params.id);
 
-        const result = await Asset.deleteAsset(req.params.id);
+    if (activeAllocation) {
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Asset not found"
-            });
-        }
-
-        // Blockchain Audit Log
-        await logAction({
-            action: "DELETE",
-            entity: "Asset",
-            entity_id: req.params.id,
-            description: "Deleted Asset",
-            user_id: req.user.id,
-        });
-
-        res.status(200).json({
-            success: true,
-            message: "Asset deleted successfully"
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: "Failed to delete asset"
+            message: "Cannot delete an allocated asset."
         });
 
     }
 
-};
-// Get Available Assets
-const getAvailableAssets = asyncHandler(async (req, res) => {
+    // Check active maintenance
+    const activeMaintenance =
+        await Asset.getActiveMaintenance(req.params.id);
 
-    const assets = await Asset.getAvailableAssets();
+    if (activeMaintenance) {
+
+        return res.status(400).json({
+            success: false,
+            message: "Asset is currently under maintenance."
+        });
+
+    }
+
+    // Delete asset
+    const result = await Asset.deleteAsset(req.params.id);
+
+    if (result.affectedRows === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "Asset not found"
+        });
+    }
+
+    await logAction({
+        action: "DELETE",
+        entity: "Asset",
+        entity_id: req.params.id,
+        description: "Deleted Asset",
+        user_id: req.user.id,
+    });
 
     res.status(200).json({
         success: true,
-        data: assets
+        message: "Asset deleted successfully"
     });
 
 });
+
 module.exports = {
     getAllAssets,
     getAsset,
     createAsset,
     updateAsset,
-    getAvailableAssets,
     deleteAsset
 };

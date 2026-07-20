@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { X, Wrench, Search } from "lucide-react";
 
 import { addMaintenance } from "@/services/maintenanceService";
-import AssetPickerModal from "../../allocations/components/AssetPickerModal";
+import MaintenanceAssetPicker from "./MaintenanceAssetPicker";
 
 export default function MaintenanceModal({ onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -47,9 +47,7 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
       onSuccess();
     } catch (error) {
       console.error(error);
-      toast.error(
-        error.response?.data?.message || "Unable to create record"
-      );
+      toast.error(error.response?.data?.message || "Unable to create record");
     } finally {
       setSaving(false);
     }
@@ -92,7 +90,9 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
               padding: "1.5rem 2rem",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+            >
               <div
                 className="rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10"
                 style={{
@@ -133,8 +133,16 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
             }}
           >
             {/* Custom Asset Button Picker */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label className="text-sm font-medium text-slate-300">Select Asset</label>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              <label className="text-sm font-medium text-slate-300">
+                Select Asset
+              </label>
               <button
                 type="button"
                 onClick={() => setShowAssetPicker(true)}
@@ -145,10 +153,16 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                   justifyContent: "space-between",
                   padding: "1rem",
                   width: "100%",
-                  boxSizing: "border-box"
+                  boxSizing: "border-box",
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.25rem",
+                  }}
+                >
                   {selectedAsset ? (
                     <>
                       <p className="font-semibold text-white">
@@ -159,16 +173,30 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                       </p>
                     </>
                   ) : (
-                    <p className="text-slate-500">Click to search for an asset...</p>
+                    <p className="text-slate-500">
+                      Click to search for an asset...
+                    </p>
                   )}
                 </div>
-                <Search size={18} className="text-cyan-400" style={{ flexShrink: 0 }} />
+                <Search
+                  size={18}
+                  className="text-cyan-400"
+                  style={{ flexShrink: 0 }}
+                />
               </button>
             </div>
 
             {/* Maintenance Date */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label className="text-sm font-medium text-slate-300">Maintenance Date</label>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              <label className="text-sm font-medium text-slate-300">
+                Maintenance Date
+              </label>
               <input
                 type="date"
                 name="maintenance_date"
@@ -176,13 +204,25 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                 onChange={handleChange}
                 required
                 className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]"
-                style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
+                style={{
+                  padding: "0.875rem 1rem",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
 
             {/* Description */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label className="text-sm font-medium text-slate-300">Description</label>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              <label className="text-sm font-medium text-slate-300">
+                Description
+              </label>
               <textarea
                 name="description"
                 rows={3}
@@ -191,13 +231,26 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                 required
                 placeholder="Describe the maintenance required..."
                 className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
-                style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box", resize: "none" }}
+                style={{
+                  padding: "0.875rem 1rem",
+                  width: "100%",
+                  boxSizing: "border-box",
+                  resize: "none",
+                }}
               />
             </div>
 
             {/* Cost */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label className="text-sm font-medium text-slate-300">Cost (₹)</label>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              <label className="text-sm font-medium text-slate-300">
+                Cost (₹)
+              </label>
               <input
                 type="number"
                 min="0"
@@ -208,7 +261,11 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                 required
                 placeholder="Enter estimated or actual cost"
                 className="rounded-xl border border-white/10 bg-slate-900/50 text-sm text-white outline-none transition-all focus:border-cyan-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-cyan-500/50"
-                style={{ padding: "0.875rem 1rem", width: "100%", boxSizing: "border-box" }}
+                style={{
+                  padding: "0.875rem 1rem",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
               />
             </div>
 
@@ -239,8 +296,18 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
                 style={{ padding: "0.75rem 2rem", minWidth: "160px" }}
               >
                 {saving ? (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-                    <div className="animate-spin rounded-full border-2 border-white/30 border-t-white" style={{ height: "1rem", width: "1rem" }}></div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
+                    <div
+                      className="animate-spin rounded-full border-2 border-white/30 border-t-white"
+                      style={{ height: "1rem", width: "1rem" }}
+                    ></div>
                     Saving...
                   </div>
                 ) : (
@@ -252,12 +319,12 @@ export default function MaintenanceModal({ onClose, onSuccess }) {
         </div>
       </div>
 
-      {/* Asset Picker Integration */}
-      <AssetPickerModal
+      <MaintenanceAssetPicker
         open={showAssetPicker}
         onClose={() => setShowAssetPicker(false)}
         onSelect={(asset) => {
           setSelectedAsset(asset);
+
           setForm((prev) => ({
             ...prev,
             asset_id: asset.id,

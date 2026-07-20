@@ -48,7 +48,25 @@ const getAllEmployees = async (filters) => {
         total: count.total,
     };
 };
+// ======================================
+// Check Active Allocation
+// ======================================
+const hasActiveAllocation = async (employeeId) => {
 
+    const [rows] = await db.query(
+        `
+        SELECT *
+        FROM allocations
+        WHERE employee_id = ?
+        AND return_date IS NULL
+        LIMIT 1
+        `,
+        [employeeId]
+    );
+
+    return rows[0];
+
+};
 // Get employee by ID
 const getEmployeeById = async (id) => {
 
@@ -142,6 +160,7 @@ module.exports = {
     getEmployeeById,
     createEmployee,
     updateEmployee,
-    deleteEmployee
+    deleteEmployee,
+    hasActiveAllocation
 
 };

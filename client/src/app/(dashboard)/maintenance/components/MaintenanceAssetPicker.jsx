@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X, Search, PackageSearch } from "lucide-react";
+import { X, Search, Wrench } from "lucide-react";
 import toast from "react-hot-toast";
 import { getAssets } from "@/services/assetService";
 
-export default function AssetPickerModal({ open, onClose, onSelect }) {
+export default function MaintenanceAssetPicker({ open, onClose, onSelect }) {
   const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -19,14 +19,10 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
   async function fetchAssets() {
     try {
       setLoading(true);
-
-      // Fetch ONLY available assets
       const res = await getAssets({
         page: 1,
         limit: 1000,
-        status: "Available",
       });
-
       setAssets(res.data || []);
     } catch (err) {
       console.error(err);
@@ -36,12 +32,12 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
     }
   }
 
+  // Show every asset except assets already under maintenance
   const filteredAssets = useMemo(() => {
     const keyword = search.toLowerCase().trim();
 
     return assets.filter((asset) => {
-      // Extra safety
-      if (asset.status !== "Available") return false;
+      if (asset.status === "Maintenance") return false;
 
       return (
         asset.asset_name.toLowerCase().includes(keyword) ||
@@ -97,24 +93,24 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
             }}
           >
             <div
-              className="rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10"
+              className="rounded-xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 ring-1 ring-white/10"
               style={{
-                display: "flex",
-                height: "2.5rem",
                 width: "2.5rem",
-                alignItems: "center",
+                height: "2.5rem",
+                display: "flex",
                 justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              <PackageSearch size={20} className="text-cyan-400" />
+              <Wrench className="text-orange-400" size={20} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
               <h2 className="text-xl font-bold tracking-tight text-white">
-                Select Asset
+                Select Asset for Maintenance
               </h2>
               <p className="text-sm font-medium text-slate-400">
-                Only available assets are displayed.
+                Choose an available or assigned asset.
               </p>
             </div>
           </div>
@@ -131,19 +127,19 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
         {/* Search */}
         <div style={{ padding: "1.5rem 2rem", flexShrink: 0 }}>
           <div
-            className="rounded-2xl border border-white/10 bg-slate-900/50 transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
+            className="rounded-2xl border border-white/10 bg-slate-900/50 transition-all focus-within:border-orange-500/50 focus-within:ring-1 focus-within:ring-orange-500/50"
             style={{
               display: "flex",
               alignItems: "center",
-              padding: "0.875rem 1.25rem",
               gap: "0.75rem",
+              padding: "0.875rem 1.25rem",
             }}
           >
             <Search size={18} className="text-slate-500" style={{ flexShrink: 0 }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, category, serial, or location..."
+              placeholder="Search by name, category, or serial..."
               className="w-full bg-transparent text-sm font-medium text-white placeholder-slate-500 outline-none"
             />
           </div>
@@ -167,7 +163,7 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
                 <tr>
                   <td colSpan="5" style={{ padding: "4rem" }}>
                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
-                      <div className="animate-spin rounded-full border-4 border-cyan-500 border-t-transparent" style={{ height: "2.5rem", width: "2.5rem" }}></div>
+                      <div className="animate-spin rounded-full border-4 border-orange-500 border-t-transparent" style={{ height: "2.5rem", width: "2.5rem" }}></div>
                     </div>
                   </td>
                 </tr>
@@ -178,7 +174,7 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
                     className="text-center text-slate-500"
                     style={{ padding: "4rem" }}
                   >
-                    No available assets found.
+                    No assets available for maintenance.
                   </td>
                 </tr>
               ) : (
@@ -205,7 +201,13 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
                     </td>
 
                     <td style={{ padding: "1.25rem 1.5rem" }}>
-                      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400 ring-1 ring-inset ring-emerald-500/20">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
+                          asset.status === "Assigned"
+                            ? "bg-blue-500/10 text-blue-400 ring-blue-500/20"
+                            : "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
+                        }`}
+                      >
                         {asset.status}
                       </span>
                     </td>
@@ -216,7 +218,7 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
                           onSelect(asset);
                           onClose();
                         }}
-                        className="rounded-xl bg-cyan-600/10 font-semibold text-cyan-400 transition-colors hover:bg-cyan-600/20 ring-1 ring-inset ring-cyan-500/20"
+                        className="rounded-xl bg-orange-600/10 font-semibold text-orange-400 transition-colors hover:bg-orange-600/20 ring-1 ring-inset ring-orange-500/20"
                         style={{
                           padding: "0.5rem 1.25rem",
                           fontSize: "0.875rem",

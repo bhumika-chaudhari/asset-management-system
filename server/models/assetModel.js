@@ -1,5 +1,8 @@
 const db = require("../config/db");
 
+// ======================================
+// Get All Assets
+// ======================================
 const getAllAssets = async (filters) => {
 
     let sql = "SELECT * FROM assets WHERE 1=1";
@@ -45,21 +48,38 @@ const getAllAssets = async (filters) => {
         total: count.total
     };
 };
-// Get asset by ID
+
+// ======================================
+// Get Asset By ID
+// ======================================
 const getAssetById = async (id) => {
+
     const [rows] = await db.query(
-        "SELECT * FROM assets WHERE id = ?",
+        "SELECT * FROM assets WHERE id=?",
         [id]
     );
+
     return rows;
+
 };
 
-// Add new asset
+// ======================================
+// Add Asset
+// ======================================
 const addAsset = async (asset) => {
+
     const sql = `
         INSERT INTO assets
-        (asset_name, category, serial_number, purchase_date, status, asset_condition, location)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (
+            asset_name,
+            category,
+            serial_number,
+            purchase_date,
+            status,
+            asset_condition,
+            location
+        )
+        VALUES (?,?,?,?,?,?,?)
     `;
 
     const [result] = await db.query(sql, [
@@ -73,21 +93,25 @@ const addAsset = async (asset) => {
     ]);
 
     return result;
+
 };
 
-// Update asset
+// ======================================
+// Update Asset
+// ======================================
 const updateAsset = async (id, asset) => {
+
     const sql = `
         UPDATE assets
         SET
-            asset_name = ?,
-            category = ?,
-            serial_number = ?,
-            purchase_date = ?,
-            status = ?,
-            asset_condition = ?,
-            location = ?
-        WHERE id = ?
+            asset_name=?,
+            category=?,
+            serial_number=?,
+            purchase_date=?,
+            status=?,
+            asset_condition=?,
+            location=?
+        WHERE id=?
     `;
 
     const [result] = await db.query(sql, [
@@ -102,26 +126,61 @@ const updateAsset = async (id, asset) => {
     ]);
 
     return result;
-};
-// Get only available assets
-const getAvailableAssets = async () => {
-    const [rows] = await db.query(`
-        SELECT *
-        FROM assets
-        WHERE status = 'Available'
-        ORDER BY asset_name
-    `);
 
-    return rows;
 };
-// Delete asset
+
+// ======================================
+// Delete Asset
+// ======================================
 const deleteAsset = async (id) => {
+
     const [result] = await db.query(
-        "DELETE FROM assets WHERE id = ?",
+        "DELETE FROM assets WHERE id=?",
         [id]
     );
 
     return result;
+
+};
+
+// ======================================
+// Active Allocation
+// ======================================
+const getActiveAllocation = async (assetId) => {
+
+    const [rows] = await db.query(
+        `
+        SELECT *
+        FROM allocations
+        WHERE asset_id = ?
+        AND return_date IS NULL
+        LIMIT 1
+        `,
+        [assetId]
+    );
+
+    return rows[0];
+
+};
+
+// ======================================
+// Active Maintenance
+// ======================================
+const getActiveMaintenance = async (assetId) => {
+
+    const [rows] = await db.query(
+        `
+        SELECT *
+        FROM maintenance
+        WHERE asset_id = ?
+        AND status='Pending'
+        LIMIT 1
+        `,
+        [assetId]
+    );
+
+    return rows[0];
+
 };
 
 module.exports = {
@@ -130,5 +189,6 @@ module.exports = {
     addAsset,
     updateAsset,
     deleteAsset,
-    getAvailableAssets
+    getActiveAllocation,
+    getActiveMaintenance
 };

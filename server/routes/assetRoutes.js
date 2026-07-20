@@ -45,11 +45,6 @@ router.delete(
     authorize("Admin"),
     assetController.deleteAsset
 );
-router.get(
-    "/available",
-    authenticate,
-    authorize("Admin"),
-    assetController.getAvailableAssets
-);
+
 
 module.exports = router;

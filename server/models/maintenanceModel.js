@@ -1,6 +1,8 @@
 const db = require("../config/db");
 
-// Add Maintenance Record
+// ======================================
+// Add Maintenance
+// ======================================
 const addMaintenance = async (maintenance) => {
 
     const connection = await db.getConnection();
@@ -9,9 +11,9 @@ const addMaintenance = async (maintenance) => {
 
         await connection.beginTransaction();
 
-        // Check asset exists
+        // Check Asset
         const [assetRows] = await connection.query(
-            "SELECT * FROM assets WHERE id = ?",
+            "SELECT * FROM assets WHERE id=?",
             [maintenance.asset_id]
         );
 
@@ -19,23 +21,55 @@ const addMaintenance = async (maintenance) => {
             throw new Error("Asset not found");
         }
 
-        // Insert maintenance record
+        const asset = assetRows[0];
+
+        // Prevent duplicate maintenance
+        const [existing] = await connection.query(
+            `
+            SELECT *
+            FROM maintenance
+            WHERE asset_id=?
+            AND status='Pending'
+            LIMIT 1
+            `,
+            [maintenance.asset_id]
+        );
+
+        if (existing.length > 0) {
+            throw new Error("Asset is already under maintenance.");
+        }
+
+        // Save maintenance
         const [result] = await connection.query(
-            `INSERT INTO maintenance
-            (asset_id, maintenance_date, description, cost, status)
-            VALUES (?, ?, ?, ?, ?)`,
+            `
+            INSERT INTO maintenance
+            (
+                asset_id,
+                maintenance_date,
+                description,
+                cost,
+                status,
+                previous_status
+            )
+            VALUES (?,?,?,?,?,?)
+            `,
             [
                 maintenance.asset_id,
                 maintenance.maintenance_date,
                 maintenance.description,
                 maintenance.cost,
-                maintenance.status || "Pending"
+                maintenance.status || "Pending",
+                asset.status
             ]
         );
 
-        // Update asset status
+        // Change asset status
         await connection.query(
-            "UPDATE assets SET status='Maintenance' WHERE id=?",
+            `
+            UPDATE assets
+            SET status='Maintenance'
+            WHERE id=?
+            `,
             [maintenance.asset_id]
         );
 
@@ -46,7 +80,6 @@ const addMaintenance = async (maintenance) => {
     } catch (error) {
 
         await connection.rollback();
-
         throw error;
 
     } finally {
@@ -57,18 +90,22 @@ const addMaintenance = async (maintenance) => {
 
 };
 
-// Get All Maintenance Records
+// ======================================
+// Get All Maintenance
+// ======================================
 const getAllMaintenance = async () => {
 
     const [rows] = await db.query(`
         SELECT
             m.id,
+            m.asset_id,
             a.asset_name,
             a.serial_number,
             m.maintenance_date,
             m.description,
             m.cost,
-            m.status
+            m.status,
+            m.previous_status
         FROM maintenance m
         JOIN assets a
             ON m.asset_id = a.id
@@ -78,7 +115,10 @@ const getAllMaintenance = async () => {
     return rows;
 
 };
+
+// ======================================
 // Complete Maintenance
+// ======================================
 const completeMaintenance = async (maintenanceId) => {
 
     const connection = await db.getConnection();
@@ -87,9 +127,12 @@ const completeMaintenance = async (maintenanceId) => {
 
         await connection.beginTransaction();
 
-        // Find maintenance record
         const [maintenanceRows] = await connection.query(
-            "SELECT * FROM maintenance WHERE id = ?",
+            `
+            SELECT *
+            FROM maintenance
+            WHERE id=?
+            `,
             [maintenanceId]
         );
 
@@ -103,20 +146,27 @@ const completeMaintenance = async (maintenanceId) => {
             throw new Error("Maintenance already completed");
         }
 
-        // Update maintenance status
+        // Complete maintenance
         await connection.query(
-            `UPDATE maintenance
-             SET status='Completed'
-             WHERE id=?`,
+            `
+            UPDATE maintenance
+            SET status='Completed'
+            WHERE id=?
+            `,
             [maintenanceId]
         );
 
-        // Update asset status
+        // Restore previous asset status
         await connection.query(
-            `UPDATE assets
-             SET status='Available'
-             WHERE id=?`,
-            [maintenance.asset_id]
+            `
+            UPDATE assets
+            SET status=?
+            WHERE id=?
+            `,
+            [
+                maintenance.previous_status,
+                maintenance.asset_id
+            ]
         );
 
         await connection.commit();
@@ -135,8 +185,25 @@ const completeMaintenance = async (maintenanceId) => {
     }
 
 };
+// Check if an asset already has an active maintenance
+const getActiveMaintenance = async (assetId) => {
+
+    const [rows] = await db.query(
+        `
+        SELECT *
+        FROM maintenance
+        WHERE asset_id = ?
+        AND status != 'Completed'
+        LIMIT 1
+        `,
+        [assetId]
+    );
+
+    return rows[0];
+};
 module.exports = {
     addMaintenance,
     getAllMaintenance,
-    completeMaintenance
+    completeMaintenance,
+    getActiveMaintenance
 };
