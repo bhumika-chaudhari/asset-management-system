@@ -26,13 +26,13 @@ const allocateAsset = asyncHandler(async (req, res) => {
         assigned_date
     });
 
-    // Blockchain Audit Log
+    // Blockchain Log
     await logAction({
         action: "ALLOCATE",
         entity: "Allocation",
         entity_id: result.insertId,
         description: `Allocated Asset ${asset_id} to Employee ${employee_id}`,
-        user_id: req.user.id,
+        user_id: req.user.id
     });
 
     res.status(201).json({
@@ -67,13 +67,12 @@ const returnAsset = asyncHandler(async (req, res) => {
 
     await Allocation.returnAsset(id);
 
-    // Blockchain Audit Log
     await logAction({
         action: "RETURN",
         entity: "Allocation",
         entity_id: id,
         description: `Returned Allocation ${id}`,
-        user_id: req.user.id,
+        user_id: req.user.id
     });
 
     res.status(200).json({

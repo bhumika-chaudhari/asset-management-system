@@ -5,9 +5,13 @@ import { X, Search, PackageSearch } from "lucide-react";
 import toast from "react-hot-toast";
 import { getAssets } from "@/services/assetService";
 
-export default function AssetPickerModal({ open, onClose, onSelect }) {
+export default function AssetPickerModal({
+  open,
+  onClose,
+  onSelect,
+}) {
   const [assets, setAssets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -17,34 +21,37 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
   }, [open]);
 
   async function fetchAssets() {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await getAssets({
-      page: 1,
-      limit: 1000,
-    });
+      // Fetch ONLY available assets
+      const res = await getAssets({
+        page: 1,
+        limit: 1000,
+        status: "Available",
+      });
 
-    console.log("Assets API Response:", res);
-    console.log("Assets:", res.data);
-
-    setAssets(res.data);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to load assets");
-  } finally {
-    setLoading(false);
+      setAssets(res.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load assets");
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   const filteredAssets = useMemo(() => {
+    const keyword = search.toLowerCase().trim();
+
     return assets.filter((asset) => {
-      const keyword = search.toLowerCase();
+      // Extra safety
+      if (asset.status !== "Available") return false;
 
       return (
         asset.asset_name.toLowerCase().includes(keyword) ||
         asset.category.toLowerCase().includes(keyword) ||
-        asset.serial_number.toLowerCase().includes(keyword)
+        asset.serial_number.toLowerCase().includes(keyword) ||
+        (asset.location || "").toLowerCase().includes(keyword)
       );
     });
   }, [assets, search]);
@@ -56,14 +63,11 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
       className="bg-black/60 backdrop-blur-sm"
       style={{
         position: "fixed",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+        inset: 0,
         zIndex: 60,
         display: "flex",
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
         padding: "1.5rem",
       }}
     >
@@ -71,181 +75,175 @@ export default function AssetPickerModal({ open, onClose, onSelect }) {
         className="rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl backdrop-blur-xl"
         style={{
           width: "100%",
-          maxWidth: "56rem",
-          display: "flex",
-          flexDirection: "column",
+          maxWidth: "900px",
           overflow: "hidden",
         }}
       >
         {/* Header */}
         <div
-          className="border-b border-white/5 bg-white/5"
+          className="border-b border-white/10"
           style={{
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
+            alignItems: "center",
             padding: "1.5rem 2rem",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <div
-              className="rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10"
-              style={{
-                display: "flex",
-                height: "2.5rem",
-                width: "2.5rem",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <PackageSearch className="text-cyan-400" size={20} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div className="rounded-xl bg-cyan-500/10 p-3">
+              <PackageSearch
+                size={22}
+                className="text-cyan-400"
+              />
             </div>
-            <h2 className="text-xl font-bold tracking-tight text-white">
-              Select Asset
-            </h2>
+
+            <div>
+              <h2 className="text-xl font-bold text-white">
+                Select Asset
+              </h2>
+
+              <p className="text-sm text-slate-400">
+                Only available assets are displayed.
+              </p>
+            </div>
           </div>
 
           <button
             onClick={onClose}
-            type="button"
-            className="rounded-full bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
-            style={{ padding: "0.5rem" }}
+            className="rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            padding: "2rem",
-            gap: "1.5rem",
-          }}
-        >
-          {/* Search Bar */}
+        {/* Search */}
+        <div style={{ padding: "24px" }}>
           <div
-            className="rounded-2xl border border-white/10 bg-slate-900/50 transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
+            className="rounded-xl border border-white/10 bg-slate-900/50"
             style={{
-              position: "relative",
               display: "flex",
               alignItems: "center",
-              width: "100%",
-              padding: "0.875rem 1.25rem",
-              gap: "0.75rem",
+              padding: "12px 16px",
+              gap: "10px",
             }}
           >
             <Search
               size={18}
               className="text-slate-500"
-              style={{ flexShrink: 0 }}
             />
+
             <input
-              type="text"
-              placeholder="Search available assets by name, category, or serial..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-transparent text-sm font-medium text-white placeholder-slate-500 outline-none"
-              style={{ width: "100%" }}
+              placeholder="Search asset..."
+              className="w-full bg-transparent text-white outline-none placeholder:text-slate-500"
             />
           </div>
+        </div>
 
-          {/* Table Container */}
-          <div
-            className="rounded-xl border border-white/5 bg-slate-900/30"
+        {/* Table */}
+        <div
+          style={{
+            maxHeight: "450px",
+            overflowY: "auto",
+          }}
+        >
+          <table
             style={{
-              overflowY: "auto",
-              maxHeight: "450px",
               width: "100%",
+              borderCollapse: "collapse",
             }}
           >
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead className="sticky top-0 z-10 border-b border-white/10 bg-[#0A101D]/90 backdrop-blur-md">
-                <tr className="text-left text-xs font-medium uppercase tracking-wider text-slate-400">
-                  <th style={{ padding: "1.25rem 1.5rem" }}>Asset</th>
-                  <th style={{ padding: "1.25rem 1.5rem" }}>Category</th>
-                  <th style={{ padding: "1.25rem 1.5rem" }}>Serial</th>
-                  <th style={{ padding: "1.25rem 1.5rem" }}>Action</th>
-                </tr>
-              </thead>
+            <thead className="sticky top-0 bg-[#0A101D]">
+              <tr className="border-y border-white/10 text-left text-xs uppercase tracking-wider text-slate-400">
+                <th style={{ padding: "18px 24px" }}>Asset</th>
+                <th style={{ padding: "18px 24px" }}>Category</th>
+                <th style={{ padding: "18px 24px" }}>Serial</th>
+                <th style={{ padding: "18px 24px" }}>Status</th>
+                <th style={{ padding: "18px 24px" }}>Action</th>
+              </tr>
+            </thead>
 
-              <tbody className="text-sm text-slate-300">
-                {loading ? (
-                  <tr>
-                    <td colSpan="4" style={{ padding: "4rem" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          width: "100%",
-                        }}
-                      >
-                        <div
-                          className="animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
-                          style={{ height: "2.5rem", width: "2.5rem" }}
-                        ></div>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    style={{ padding: "60px" }}
+                  >
+                    <div className="flex justify-center">
+                      <div className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"></div>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredAssets.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="text-center text-slate-500"
+                    style={{ padding: "60px" }}
+                  >
+                    No available assets found.
+                  </td>
+                </tr>
+              ) : (
+                filteredAssets.map((asset) => (
+                  <tr
+                    key={asset.id}
+                    className="border-b border-white/5 hover:bg-white/5"
+                  >
+                    <td style={{ padding: "18px 24px" }}>
+                      <div className="font-medium text-white">
+                        {asset.asset_name}
+                      </div>
+
+                      <div className="text-xs text-slate-500">
+                        {asset.location}
                       </div>
                     </td>
-                  </tr>
-                ) : filteredAssets.length === 0 ? (
-                  <tr>
+
                     <td
-                      colSpan="4"
-                      className="text-center text-slate-500"
-                      style={{ padding: "4rem" }}
+                      style={{ padding: "18px 24px" }}
+                      className="text-slate-300"
                     >
-                      No available assets found.
+                      {asset.category}
+                    </td>
+
+                    <td
+                      style={{ padding: "18px 24px" }}
+                      className="font-mono text-xs text-slate-400"
+                    >
+                      {asset.serial_number}
+                    </td>
+
+                    <td style={{ padding: "18px 24px" }}>
+                      <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
+                        {asset.status}
+                      </span>
+                    </td>
+
+                    <td style={{ padding: "18px 24px" }}>
+                      <button
+                        onClick={() => {
+                          onSelect(asset);
+                          onClose();
+                        }}
+                        className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500"
+                      >
+                        Select
+                      </button>
                     </td>
                   </tr>
-                ) : (
-                  filteredAssets.map((asset) => (
-                    <tr
-                      key={asset.id}
-                      className="border-b border-white/5 transition-colors duration-200 hover:bg-white/5"
-                    >
-                      <td style={{ padding: "1.25rem 1.5rem" }}>
-                        <div
-                          className="font-medium text-white"
-                          style={{ marginBottom: "0.25rem" }}
-                        >
-                          {asset.asset_name}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {asset.location}
-                        </div>
-                      </td>
-                      <td style={{ padding: "1.25rem 1.5rem" }}>
-                        {asset.category}
-                      </td>
-                      <td
-                        className="font-mono text-xs text-slate-400"
-                        style={{ padding: "1.25rem 1.5rem" }}
-                      >
-                        {asset.serial_number}
-                      </td>
-                      <td style={{ padding: "1.25rem 1.5rem" }}>
-                        <button
-                          onClick={() => {
-                            onSelect(asset);
-                            onClose();
-                          }}
-                          className="rounded-lg bg-cyan-600/10 text-cyan-400 font-medium transition-colors hover:bg-cyan-600/30 ring-1 ring-inset ring-cyan-500/20"
-                          style={{
-                            padding: "0.5rem 1rem",
-                            fontSize: "0.875rem",
-                          }}
-                        >
-                          Select
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

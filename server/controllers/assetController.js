@@ -189,11 +189,22 @@ const deleteAsset = async (req, res) => {
     }
 
 };
+// Get Available Assets
+const getAvailableAssets = asyncHandler(async (req, res) => {
 
+    const assets = await Asset.getAvailableAssets();
+
+    res.status(200).json({
+        success: true,
+        data: assets
+    });
+
+});
 module.exports = {
     getAllAssets,
     getAsset,
     createAsset,
     updateAsset,
+    getAvailableAssets,
     deleteAsset
 };

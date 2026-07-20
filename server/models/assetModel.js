@@ -103,7 +103,17 @@ const updateAsset = async (id, asset) => {
 
     return result;
 };
+// Get only available assets
+const getAvailableAssets = async () => {
+    const [rows] = await db.query(`
+        SELECT *
+        FROM assets
+        WHERE status = 'Available'
+        ORDER BY asset_name
+    `);
 
+    return rows;
+};
 // Delete asset
 const deleteAsset = async (id) => {
     const [result] = await db.query(
@@ -119,5 +129,6 @@ module.exports = {
     getAssetById,
     addAsset,
     updateAsset,
-    deleteAsset
+    deleteAsset,
+    getAvailableAssets
 };

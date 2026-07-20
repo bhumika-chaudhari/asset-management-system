@@ -14,7 +14,10 @@ export const updateAsset = async (id, asset) => {
   const { data } = await api.put(`/assets/${id}`, asset);
   return data;
 };
-
+export const getAvailableAssets = async () => {
+    const { data } = await api.get("/assets/available");
+    return data;
+};
 export const deleteAsset = async (id) => {
   const { data } = await api.delete(`/assets/${id}`);
   return data;

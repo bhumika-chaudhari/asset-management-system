@@ -11,16 +11,20 @@ const logAction = async ({
 
     const previous_hash = await Audit.getLastHash();
 
-    const blockData = JSON.stringify({
-        action,
-        entity,
-        entity_id,
-        description,
-        user_id,
-        previous_hash
-    });
+   const blockData = JSON.stringify({
+    action,
+    entity,
+    entity_id: Number(entity_id),
+    description,
+    user_id: Number(user_id),
+    previous_hash
+});
+console.log("========== CREATED BLOCK ==========");
+console.log(blockData);
 
-    const current_hash = generateHash(blockData);
+const current_hash = generateHash(blockData);
+
+console.log("Hash:", current_hash);
 
     await Audit.createAuditLog({
         action,
