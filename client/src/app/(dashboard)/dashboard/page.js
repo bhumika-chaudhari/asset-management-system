@@ -2,18 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { getDashboardStats } from "@/services/dashboardService";
-
 import {
   Package,
   Users,
   ClipboardList,
   Wrench,
 } from "lucide-react";
-
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchDashboard();
   }, []);
