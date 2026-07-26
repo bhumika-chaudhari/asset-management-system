@@ -66,7 +66,7 @@ export default function AssetsPage() {
     }
   }
 
-  // Handle Delete (Called from inside the confirmation modal)
+  // Handle Delete
   async function handleDelete() {
     if (!assetToDelete) return;
 
@@ -74,10 +74,8 @@ export default function AssetsPage() {
       await deleteAsset(assetToDelete.id);
       toast.success("Asset deleted successfully");
       
-      // Close modal and refresh list
       setAssetToDelete(null);
       
-      // If we delete the last item on a page, go back a page
       if (assets.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
@@ -100,46 +98,56 @@ export default function AssetsPage() {
     >
       {/* Header Section */}
       <div
+        className="animate-fade-up"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "1rem",
           width: "100%",
+          animationDelay: "0s",
+          animationFillMode: "both",
         }}
       >
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
             Asset Registry
           </h1>
           <p className="text-sm font-medium text-slate-400">
-            Manage, track, and assign company hardware and software
+            Manage, track, and assign company hardware and software.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="group rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 font-bold text-white shadow-[0_0_15px_rgba(8,112,184,0.3)] transition-all duration-300 hover:from-indigo-500 hover:to-cyan-500"
+          className="group rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 font-bold text-white shadow-[0_0_15px_rgba(8,112,184,0.3)] transition-all duration-300 hover:from-indigo-500 hover:to-cyan-500 hover:shadow-[0_0_25px_rgba(8,112,184,0.5)]"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0.75rem 1.25rem",
+            padding: "0.875rem 1.5rem",
             gap: "0.5rem",
           }}
         >
-          <Plus size={18} />
+          <Plus size={18} className="transition-transform duration-300 group-hover:rotate-90" />
           <span>Add Asset</span>
         </button>
       </div>
 
       {/* Search Bar */}
-      <div style={{ display: "flex", width: "100%" }}>
+      <div 
+        className="animate-fade-up"
+        style={{ 
+          display: "flex", 
+          width: "100%",
+          animationDelay: "0.1s",
+          animationFillMode: "both", 
+        }}
+      >
         <div
-          className="rounded-2xl border border-white/5 bg-[#0A101D]/80 backdrop-blur-xl transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
+          className="rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-xl transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
           style={{
-            position: "relative",
             display: "flex",
             alignItems: "center",
             width: "100%",
@@ -147,11 +155,7 @@ export default function AssetsPage() {
             gap: "0.75rem",
           }}
         >
-          <Search
-            className="text-slate-500"
-            size={18}
-            style={{ flexShrink: 0 }}
-          />
+          <Search className="text-slate-500" size={18} style={{ flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search assets by name, category, or serial number..."
@@ -171,12 +175,14 @@ export default function AssetsPage() {
 
       {/* Table Container */}
       <div
-        className="rounded-2xl border border-white/5 bg-[#0A101D]/80 backdrop-blur-xl"
+        className="animate-fade-up rounded-[2rem] border border-white/5 bg-[#0A101D]/80 shadow-2xl backdrop-blur-xl"
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
           overflow: "hidden",
+          animationDelay: "0.2s",
+          animationFillMode: "both",
         }}
       >
         <div style={{ overflowX: "auto", width: "100%" }}>
@@ -197,23 +203,23 @@ export default function AssetsPage() {
             {/* Table Body */}
             <tbody className="text-sm text-slate-300">
               {loading ? (
-                <tr>
-                  <td colSpan="7" style={{ padding: "4rem" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "100%",
-                      }}
-                    >
-                      <div
-                        className="animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
-                        style={{ height: "2.5rem", width: "2.5rem" }}
-                      ></div>
-                    </div>
-                  </td>
-                </tr>
+                // Premium Skeleton Loader Rows
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="border-b border-white/5">
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-32 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-24 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-28 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-6 w-20 rounded-full bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-6 w-20 rounded-full bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-24 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <div className="h-8 w-16 rounded-lg bg-slate-800/50 animate-pulse"></div>
+                        <div className="h-8 w-20 rounded-lg bg-slate-800/50 animate-pulse"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : assets.length === 0 ? (
                 <tr>
                   <td
@@ -230,57 +236,37 @@ export default function AssetsPage() {
                     key={asset.id}
                     className="border-b border-white/5 transition-colors duration-200 hover:bg-white/5"
                   >
-                    <td
-                      className="font-medium text-white"
-                      style={{ padding: "1.25rem 1.5rem" }}
-                    >
+                    <td className="font-medium text-white" style={{ padding: "1.25rem 1.5rem" }}>
                       {asset.asset_name}
                     </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>
                       {asset.category}
                     </td>
-                    <td
-                      className="font-mono text-xs text-slate-400"
-                      style={{ padding: "1.25rem 1.5rem" }}
-                    >
+                    <td className="font-mono text-xs text-slate-400" style={{ padding: "1.25rem 1.5rem" }}>
                       {asset.serial_number}
                     </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>
                       <span
-                        className={`font-medium ring-1 ring-inset ${
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
                           asset.status === "Available"
                             ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
                             : asset.status === "Assigned"
                               ? "bg-cyan-500/10 text-cyan-400 ring-cyan-500/20"
                               : "bg-orange-500/10 text-orange-400 ring-orange-500/20"
                         }`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          borderRadius: "9999px",
-                          padding: "0.125rem 0.625rem",
-                          fontSize: "0.75rem",
-                        }}
                       >
                         {asset.status}
                       </span>
                     </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>
                       <span
-                        className={`font-medium ring-1 ring-inset ${
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${
                           asset.asset_condition === "Good"
                             ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
                             : asset.asset_condition === "Damaged"
                               ? "bg-red-500/10 text-red-400 ring-red-500/20"
                               : "bg-yellow-500/10 text-yellow-400 ring-yellow-500/20"
                         }`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          borderRadius: "9999px",
-                          padding: "0.125rem 0.625rem",
-                          fontSize: "0.75rem",
-                        }}
                       >
                         {asset.asset_condition}
                       </span>
@@ -289,12 +275,12 @@ export default function AssetsPage() {
                       {asset.location}
                     </td>
 
-                    {/* Actions Cell (Edit + Delete) */}
+                    {/* Actions Cell */}
                     <td style={{ padding: "1.25rem 1.5rem" }}>
-                      <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <button
                           onClick={() => handleEdit(asset.id)}
-                          className="rounded-lg bg-cyan-600/10 text-cyan-400 transition-colors hover:bg-cyan-600/30 ring-1 ring-inset ring-cyan-500/20"
+                          className="rounded-lg bg-cyan-600/10 text-cyan-400 transition-colors hover:bg-cyan-600/20 ring-1 ring-inset ring-cyan-500/20"
                           style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.75rem", fontSize: "0.75rem", fontWeight: "600" }}
                         >
                           <Edit2 size={14} />
@@ -303,7 +289,7 @@ export default function AssetsPage() {
 
                         <button
                           onClick={() => setAssetToDelete(asset)}
-                          className="rounded-lg bg-red-600/10 text-red-400 transition-colors hover:bg-red-600/30 ring-1 ring-inset ring-red-500/20"
+                          className="rounded-lg bg-red-600/10 text-red-400 transition-colors hover:bg-red-600/20 ring-1 ring-inset ring-red-500/20"
                           style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.75rem", fontSize: "0.75rem", fontWeight: "600" }}
                         >
                           <Trash2 size={14} />
@@ -321,23 +307,26 @@ export default function AssetsPage() {
 
       {/* Pagination Container */}
       <div
+        className="animate-fade-up"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           width: "100%",
           paddingBottom: "1rem",
+          animationDelay: "0.3s",
+          animationFillMode: "both",
         }}
       >
         <p className="text-sm font-medium text-slate-400">
-          Total Assets: <span className="text-white">{pagination.total}</span>
+          Total Assets: <span className="font-bold text-white">{pagination.total}</span>
         </p>
 
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             style={{ padding: "0.625rem 1.25rem" }}
           >
             Previous
@@ -348,7 +337,7 @@ export default function AssetsPage() {
               page === pagination.totalPages || pagination.totalPages === 0
             }
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             style={{ padding: "0.625rem 1.25rem" }}
           >
             Next
@@ -356,7 +345,7 @@ export default function AssetsPage() {
         </div>
       </div>
 
-      {/* ADD MODAL */}
+      {/* MODALS */}
       {showAddModal && (
         <AssetModal
           onClose={() => setShowAddModal(false)}
@@ -367,7 +356,6 @@ export default function AssetsPage() {
         />
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && selectedAsset && (
         <AssetModal
           asset={selectedAsset}
@@ -382,13 +370,10 @@ export default function AssetsPage() {
       {/* CUSTOM DELETE CONFIRMATION MODAL */}
       {assetToDelete && (
         <div
-          className="bg-black/60 backdrop-blur-sm"
+          className="bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
           style={{
             position: "fixed",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
+            top: 0, right: 0, bottom: 0, left: 0,
             zIndex: 60,
             display: "flex",
             alignItems: "center",
@@ -397,7 +382,7 @@ export default function AssetsPage() {
           }}
         >
           <div
-            className="rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl backdrop-blur-xl"
+            className="animate-scale-up rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl"
             style={{
               width: "100%",
               maxWidth: "24rem",
@@ -415,8 +400,8 @@ export default function AssetsPage() {
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <h2 className="text-xl font-bold text-white">Delete Asset</h2>
-                <p className="text-sm text-slate-400" style={{ lineHeight: "1.5" }}>
+                <h2 className="text-xl font-extrabold text-white">Delete Asset</h2>
+                <p className="text-sm font-medium text-slate-400" style={{ lineHeight: "1.5" }}>
                   Are you sure you want to delete <span className="font-bold text-white">{assetToDelete.asset_name}</span>? This action cannot be undone.
                 </p>
               </div>
@@ -425,16 +410,16 @@ export default function AssetsPage() {
             <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem", width: "100%" }}>
               <button
                 onClick={() => setAssetToDelete(null)}
-                className="rounded-xl border border-white/10 bg-slate-900/50 font-medium text-white transition-colors hover:bg-slate-800"
-                style={{ flex: 1, padding: "0.75rem" }}
+                className="rounded-xl border border-white/10 bg-slate-900/50 font-semibold text-white transition-colors hover:bg-slate-800"
+                style={{ flex: 1, padding: "0.875rem" }}
               >
                 Cancel
               </button>
               
               <button
                 onClick={handleDelete}
-                className="rounded-xl bg-red-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:bg-red-500 hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]"
-                style={{ flex: 1, padding: "0.75rem" }}
+                className="rounded-xl bg-red-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]"
+                style={{ flex: 1, padding: "0.875rem" }}
               >
                 Delete
               </button>
@@ -443,6 +428,23 @@ export default function AssetsPage() {
         </div>
       )}
 
+      {/* Global Animations Keyframes */}
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleUp {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-up {
+          animation: fadeUp 0.4s ease-out forwards;
+        }
+        .animate-scale-up {
+          animation: scaleUp 0.2s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

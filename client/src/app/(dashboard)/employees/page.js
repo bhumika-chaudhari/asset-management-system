@@ -95,19 +95,24 @@ export default function EmployeesPage() {
     >
       {/* Header Section */}
       <div
+        className="animate-fade-up"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "1rem",
           width: "100%",
+          animationDelay: "0s",
+          animationFillMode: "both",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
           <h1 className="text-3xl font-extrabold tracking-tight text-white">
             Employee Directory
           </h1>
           <p className="text-sm font-medium text-slate-400">
-            Manage company personnel and contact information
+            Manage company personnel and contact information.
           </p>
         </div>
 
@@ -116,24 +121,32 @@ export default function EmployeesPage() {
             setSelectedEmployee(null);
             setShowModal(true);
           }}
-          className="group rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 font-bold text-white shadow-[0_0_15px_rgba(8,112,184,0.3)] transition-all duration-300 hover:from-indigo-500 hover:to-cyan-500 hover:shadow-[0_0_20px_rgba(8,112,184,0.5)]"
+          className="group rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 font-bold text-white shadow-[0_0_15px_rgba(8,112,184,0.3)] transition-all duration-300 hover:from-indigo-500 hover:to-cyan-500 hover:shadow-[0_0_25px_rgba(8,112,184,0.5)]"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "0.75rem 1.25rem",
+            padding: "0.875rem 1.5rem",
             gap: "0.5rem",
           }}
         >
-          <Plus size={18} />
+          <Plus size={18} className="transition-transform duration-300 group-hover:rotate-90" />
           <span>Add Employee</span>
         </button>
       </div>
 
       {/* Search Bar */}
-      <div style={{ display: "flex", width: "100%" }}>
+      <div 
+        className="animate-fade-up"
+        style={{ 
+          display: "flex", 
+          width: "100%",
+          animationDelay: "0.1s",
+          animationFillMode: "both", 
+        }}
+      >
         <div
-          className="rounded-2xl border border-white/5 bg-[#0A101D]/80 backdrop-blur-xl transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
+          className="rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-xl transition-all focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/50"
           style={{
             position: "relative",
             display: "flex",
@@ -162,12 +175,14 @@ export default function EmployeesPage() {
 
       {/* Table Container */}
       <div
-        className="rounded-2xl border border-white/5 bg-[#0A101D]/80 backdrop-blur-xl"
+        className="animate-fade-up rounded-[2rem] border border-white/5 bg-[#0A101D]/80 shadow-2xl backdrop-blur-xl"
         style={{
           display: "flex",
           flexDirection: "column",
           width: "100%",
           overflow: "hidden",
+          animationDelay: "0.2s",
+          animationFillMode: "both",
         }}
       >
         <div style={{ overflowX: "auto", width: "100%" }}>
@@ -189,16 +204,23 @@ export default function EmployeesPage() {
             {/* Table Body */}
             <tbody className="text-sm text-slate-300">
               {loading ? (
-                <tr>
-                  <td colSpan="7" style={{ padding: "4rem" }}>
-                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
-                      <div
-                        className="animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"
-                        style={{ height: "2.5rem", width: "2.5rem" }}
-                      ></div>
-                    </div>
-                  </td>
-                </tr>
+                // Premium Skeleton Loader Rows
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="border-b border-white/5">
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-20 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-32 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-6 w-24 rounded-full bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-28 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-40 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}><div className="h-4 w-24 rounded bg-slate-800/50 animate-pulse"></div></td>
+                    <td style={{ padding: "1.25rem 1.5rem" }}>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <div className="h-8 w-16 rounded-lg bg-slate-800/50 animate-pulse"></div>
+                        <div className="h-8 w-20 rounded-lg bg-slate-800/50 animate-pulse"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : employees.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center text-slate-500" style={{ padding: "4rem" }}>
@@ -211,20 +233,20 @@ export default function EmployeesPage() {
                     key={employee.id}
                     className="border-b border-white/5 transition-colors duration-200 hover:bg-white/5"
                   >
-                    <td className="font-mono text-xs text-slate-400" style={{ padding: "1.25rem 1.5rem" }}>
+                    <td className="font-mono text-xs text-cyan-400" style={{ padding: "1.25rem 1.5rem" }}>
                       {employee.employee_code}
                     </td>
                     <td className="font-medium text-white" style={{ padding: "1.25rem 1.5rem" }}>
                       {employee.name}
                     </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>
-                      <span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-slate-300 ">
+                      <span className="inline-flex items-center rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-xs font-medium text-indigo-400 ring-1 ring-inset ring-indigo-500/20">
                         {employee.department}
                       </span>
                     </td>
                     <td style={{ padding: "1.25rem 1.5rem" }}>{employee.designation}</td>
-                    <td style={{ padding: "1.25rem 1.5rem" }}>{employee.email}</td>
-                    <td style={{ padding: "1.25rem 1.5rem" }}>{employee.phone}</td>
+                    <td className="text-slate-400" style={{ padding: "1.25rem 1.5rem" }}>{employee.email}</td>
+                    <td className="font-mono text-xs text-slate-400" style={{ padding: "1.25rem 1.5rem" }}>{employee.phone}</td>
                     
                     {/* Actions Cell */}
                     <td style={{ padding: "1.25rem 1.5rem" }}>
@@ -260,23 +282,26 @@ export default function EmployeesPage() {
 
       {/* Pagination Container */}
       <div
+        className="animate-fade-up"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           width: "100%",
           paddingBottom: "1rem",
+          animationDelay: "0.3s",
+          animationFillMode: "both",
         }}
       >
         <p className="text-sm font-medium text-slate-400">
-          Total Employees: <span className="text-white">{pagination.total}</span>
+          Total Employees: <span className="font-bold text-white">{pagination.total}</span>
         </p>
 
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <button
             disabled={page === 1}
             onClick={() => setPage((prev) => prev - 1)}
-            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             style={{ padding: "0.625rem 1.25rem" }}
           >
             Previous
@@ -285,7 +310,7 @@ export default function EmployeesPage() {
           <button
             disabled={page === pagination.totalPages || pagination.totalPages === 0}
             onClick={() => setPage((prev) => prev + 1)}
-            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-white/10 bg-slate-900/50 text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             style={{ padding: "0.625rem 1.25rem" }}
           >
             Next
@@ -308,7 +333,7 @@ export default function EmployeesPage() {
       {/* Custom Delete Confirmation Modal */}
       {employeeToDelete && (
         <div
-          className="bg-black/60 backdrop-blur-sm"
+          className="bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
           style={{
             position: "fixed",
             top: 0,
@@ -323,7 +348,7 @@ export default function EmployeesPage() {
           }}
         >
           <div
-            className="rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl backdrop-blur-xl"
+            className="animate-scale-up rounded-[2rem] border border-white/10 bg-[#0A101D]/95 shadow-2xl backdrop-blur-xl"
             style={{
               width: "100%",
               maxWidth: "24rem",
@@ -341,8 +366,8 @@ export default function EmployeesPage() {
               </div>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <h2 className="text-xl font-bold text-white">Delete Employee</h2>
-                <p className="text-sm text-slate-400" style={{ lineHeight: "1.5" }}>
+                <h2 className="text-xl font-extrabold text-white">Delete Employee</h2>
+                <p className="text-sm font-medium text-slate-400" style={{ lineHeight: "1.5" }}>
                   Are you sure you want to delete <span className="font-bold text-white">{employeeToDelete.name}</span>? This action cannot be undone.
                 </p>
               </div>
@@ -351,16 +376,16 @@ export default function EmployeesPage() {
             <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem", width: "100%" }}>
               <button
                 onClick={() => setEmployeeToDelete(null)}
-                className="rounded-xl border border-white/10 bg-slate-900/50 font-medium text-white transition-colors hover:bg-slate-800"
-                style={{ flex: 1, padding: "0.75rem" }}
+                className="rounded-xl border border-white/10 bg-slate-900/50 font-semibold text-white transition-colors hover:bg-slate-800"
+                style={{ flex: 1, padding: "0.875rem" }}
               >
                 Cancel
               </button>
               
               <button
                 onClick={confirmDelete}
-                className="rounded-xl bg-red-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:bg-red-500 hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]"
-                style={{ flex: 1, padding: "0.75rem" }}
+                className="rounded-xl bg-red-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] transition-all hover:bg-red-500 hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]"
+                style={{ flex: 1, padding: "0.875rem" }}
               >
                 Delete
               </button>
@@ -369,6 +394,23 @@ export default function EmployeesPage() {
         </div>
       )}
 
+      {/* Global Animations Keyframes */}
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleUp {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-up {
+          animation: fadeUp 0.4s ease-out forwards;
+        }
+        .animate-scale-up {
+          animation: scaleUp 0.2s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
