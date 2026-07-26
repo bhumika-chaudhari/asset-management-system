@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }) {
     { title: "Maintenance", href: "/maintenance", icon: Wrench },
     { title: "Reports", href: "/reports", icon: BarChart3 },
     { title: "Audit Logs", href: "/audit", icon: ShieldCheck },
-    { title: "Settings", href: "/settings", icon: Settings },
+    
   ];
 
   const handleLogout = () => {
@@ -188,16 +188,7 @@ export default function DashboardLayout({ children }) {
           <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
             
             {/* Notification Icon */}
-            <button 
-              className="relative rounded-xl border border-white/5 bg-slate-900/50 text-slate-400 transition-all hover:bg-slate-800 hover:text-white"
-              style={{ padding: "0.625rem", display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              <Bell size={20} />
-              <span 
-                className="absolute rounded-full bg-cyan-400 ring-2 ring-[#070B14]"
-                style={{ top: "0.625rem", right: "0.625rem", height: "0.5rem", width: "0.5rem" }}
-              />
-            </button>
+          
 
             {/* Profile Avatar & Info */}
             <div 

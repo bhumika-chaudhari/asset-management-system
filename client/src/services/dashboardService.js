@@ -7,3 +7,11 @@ export const getDashboardStats = async () => {
 
   return response.data;
 };
+export const getAssetCategoryDistribution = async () => {
+  const res = await api.get("/dashboard/asset-category");
+  return res.data;
+};
+export async function getAssetStatusDistribution() {
+    const res = await api.get("/dashboard/asset-status");
+    return res.data;
+}
