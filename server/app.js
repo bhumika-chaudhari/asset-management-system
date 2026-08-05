@@ -13,7 +13,7 @@ async function connectDB() {
     try {
         const connection = await db.getConnection();
 
-        console.log("✅ MySQL Connected");
+        console.log(" MySQL Connected");
 
         connection.release();
     } catch (error) {

@@ -66,26 +66,38 @@ export default function AssetsPage() {
     }
   }
 
-  // Handle Delete
-  async function handleDelete() {
-    if (!assetToDelete) return;
+ const handleDelete = async (id) => {
+  try {
+    await deleteAsset(id);
 
-    try {
-      await deleteAsset(assetToDelete.id);
-      toast.success("Asset deleted successfully");
-      
-      setAssetToDelete(null);
-      
-      if (assets.length === 1 && page > 1) {
-        setPage(page - 1);
-      } else {
-        fetchAssets();
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.response?.data?.message || "Failed to delete asset");
+    alert("Asset deleted successfully");
+
+    fetchAssets();
+
+  } catch (error) {
+
+    const status = error.response?.status;
+    const message = error.response?.data?.message;
+
+    switch (status) {
+
+      case 400:
+        alert(message);
+        break;
+
+      case 403:
+        alert("Access Denied!\nOnly administrators can delete assets.");
+        break;
+
+      case 404:
+        alert("Asset not found.");
+        break;
+
+      default:
+        alert("Something went wrong.");
     }
   }
+};
 
   return (
     <div

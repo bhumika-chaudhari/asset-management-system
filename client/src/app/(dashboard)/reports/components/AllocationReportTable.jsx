@@ -15,19 +15,39 @@ export default function AllocationReport() {
     loadReport();
   }, []);
 
-  async function loadReport() {
-    try {
-      setLoading(true);
-      const res = await getAllocationReport();
-      setAllocations(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load allocation report");
-    } finally {
-      setLoading(false);
-    }
-  }
+async function loadReport() {
+  try {
+    setLoading(true);
 
+    const res = await getAllocationReport();
+    setAllocations(res.data);
+
+  } catch (error) {
+
+    const status = error.response?.status;
+
+    if (status === 403) {
+      toast.error("You are not authorized to view allocation reports.");
+      setAllocations([]);
+      return;
+    }
+
+    if (status === 401) {
+      toast.error("Session expired. Please login again.");
+      return;
+    }
+
+    toast.error(
+  error.response?.data?.message ||
+    "Failed to load dashboard report.",
+  {
+    id: "dashboard-error",
+  }
+);
+  } finally {
+    setLoading(false);
+  }
+}
   const filtered = useMemo(() => {
     return allocations.filter((item) => {
       const keyword = search.toLowerCase();

@@ -16,18 +16,29 @@ export default function EmployeeReport() {
   }, []);
 
   async function loadReport() {
-    try {
-      setLoading(true);
-      const res = await getEmployeeAssetReport();
-      setEmployees(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load employee report");
-    } finally {
-      setLoading(false);
-    }
-  }
+  try {
+    setLoading(true);
 
+    const res = await getEmployeeAssetReport();
+    setEmployees(res.data);
+
+  } catch (error) {
+    if (error.response?.status === 403) {
+      setEmployees([]);
+      return;
+    }
+
+    if (error.response?.status === 401) {
+      setEmployees([]);
+      return;
+    }
+
+    console.error(error);
+    setEmployees([]);
+  } finally {
+    setLoading(false);
+  }
+}
   const filtered = useMemo(() => {
     return employees.filter((employee) => {
       const keyword = search.toLowerCase();

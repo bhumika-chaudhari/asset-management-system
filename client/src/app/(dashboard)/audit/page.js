@@ -21,25 +21,57 @@ export default function AuditPage() {
     loadData();
   }, []);
 
-  async function loadData() {
-    try {
-      setLoading(true);
-      const [logsRes, verifyRes] = await Promise.all([
-  getAuditLogs(),
-  verifyBlockchain(),
-]);
+ async function loadData() {
+  try {
+    setLoading(true);
 
-setLogs(logsRes.data || []);
-setVerified(verifyRes.valid);
-    } catch (error) {
-      console.error("Failed to load audit logs:", error);
-    } finally {
-      setLoading(false);
+    const [logsRes, verifyRes] = await Promise.all([
+      getAuditLogs(),
+      verifyBlockchain(),
+    ]);
+
+    setLogs(logsRes.data || []);
+    setVerified(verifyRes.valid);
+
+  } catch (error) {
+
+    if (error.response?.status === 403) {
+      toast.dismiss();
+      toast.error("You are not authorized to view audit logs.");
+
+      setLogs([]);
+      setVerified(null);
+      return;
     }
+
+    if (error.response?.status === 401) {
+      toast.dismiss();
+      toast.error("Session expired. Please login again.");
+
+      setLogs([]);
+      setVerified(null);
+      return;
+    }
+
+    console.error(error);
+
+    toast.dismiss();
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to load audit logs."
+    );
+
+    setLogs([]);
+    setVerified(null);
+
+  } finally {
+    setLoading(false);
   }
+}
 
 async function handleVerify() {
   try {
+
     const result = await verifyBlockchain();
 
     setVerified(result.valid);
@@ -54,7 +86,24 @@ async function handleVerify() {
     }
 
   } catch (error) {
-    toast.error("Verification failed");
+
+    if (error.response?.status === 403) {
+      toast.dismiss();
+      toast.error("You are not authorized to verify the blockchain.");
+      return;
+    }
+
+    if (error.response?.status === 401) {
+      toast.dismiss();
+      toast.error("Session expired. Please login again.");
+      return;
+    }
+
+    toast.dismiss();
+    toast.error(
+      error.response?.data?.message ||
+      "Verification failed."
+    );
   }
 }
   return (

@@ -23,12 +23,31 @@ export default function DashboardAnalytics() {
 
   async function loadDashboard() {
     try {
-      setLoading(true);
       const res = await getDashboardReport();
+
       setData(res.data);
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to load dashboard report");
+      if (error.response?.status === 403) {
+        toast.error("You don't have permission to view reports.");
+      } else if (error.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to load dashboard report."
+        );
+      }
+
+      // Prevent null errors
+      setData({
+        totalAssets: 0,
+        availableAssets: 0,
+        assignedAssets: 0,
+        maintenanceAssets: 0,
+        totalEmployees: 0,
+        totalAllocations: 0,
+        totalMaintenanceCost: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -56,13 +75,48 @@ export default function DashboardAnalytics() {
   }
 
   const cards = [
-    { title: "Total Assets", value: data.totalAssets, icon: Package, color: "#3b82f6" },
-    { title: "Available Assets", value: data.availableAssets, icon: CheckCircle2, color: "#22c55e" },
-    { title: "Assigned Assets", value: data.assignedAssets, icon: ClipboardList, color: "#f59e0b" },
-    { title: "Maintenance", value: data.maintenanceAssets, icon: Wrench, color: "#ef4444" },
-    { title: "Employees", value: data.totalEmployees, icon: Users, color: "#8b5cf6" },
-    { title: "Allocations", value: data.totalAllocations, icon: Boxes, color: "#06b6d4" },
-    { title: "Maintenance Cost", value: `₹${Number(data.totalMaintenanceCost).toLocaleString()}`, icon: IndianRupee, color: "#14b8a6" },
+    {
+      title: "Total Assets",
+      value: data.totalAssets,
+      icon: Package,
+      color: "#3b82f6",
+    },
+    {
+      title: "Available Assets",
+      value: data.availableAssets,
+      icon: CheckCircle2,
+      color: "#22c55e",
+    },
+    {
+      title: "Assigned Assets",
+      value: data.assignedAssets,
+      icon: ClipboardList,
+      color: "#f59e0b",
+    },
+    {
+      title: "Maintenance",
+      value: data.maintenanceAssets,
+      icon: Wrench,
+      color: "#ef4444",
+    },
+    {
+      title: "Employees",
+      value: data.totalEmployees,
+      icon: Users,
+      color: "#8b5cf6",
+    },
+    {
+      title: "Allocations",
+      value: data.totalAllocations,
+      icon: Boxes,
+      color: "#06b6d4",
+    },
+    {
+      title: "Maintenance Cost",
+      value: `₹${Number(data.totalMaintenanceCost).toLocaleString()}`,
+      icon: IndianRupee,
+      color: "#14b8a6",
+    },
   ];
 
   return (
@@ -76,6 +130,7 @@ export default function DashboardAnalytics() {
     >
       {cards.map((card) => {
         const Icon = card.icon;
+
         return (
           <div
             key={card.title}
@@ -99,7 +154,7 @@ export default function DashboardAnalytics() {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  border: `1px solid ${card.color}30`
+                  border: `1px solid ${card.color}30`,
                 }}
               >
                 <Icon size={24} color={card.color} />
@@ -109,6 +164,7 @@ export default function DashboardAnalytics() {
             <h3 className="text-sm font-medium text-slate-400">
               {card.title}
             </h3>
+
             <div className="mt-1 text-3xl font-bold text-white">
               {card.value}
             </div>

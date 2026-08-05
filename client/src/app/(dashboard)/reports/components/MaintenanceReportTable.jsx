@@ -24,17 +24,42 @@ export default function MaintenanceReport() {
   }, []);
 
   async function loadReport() {
-    try {
-      setLoading(true);
-      const res = await getMaintenanceReport();
-      setRecords(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load maintenance report");
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+
+    const res = await getMaintenanceReport();
+    setRecords(res.data);
+
+  } catch (error) {
+
+    if (error.response?.status === 403) {
+      toast.dismiss();
+      toast.error("You are not authorized to view maintenance reports.");
+      setRecords([]);
+      return;
     }
+
+    if (error.response?.status === 401) {
+      toast.dismiss();
+      toast.error("Session expired. Please login again.");
+      setRecords([]);
+      return;
+    }
+
+    console.error(error);
+
+    toast.dismiss();
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to load maintenance report."
+    );
+
+    setRecords([]);
+
+  } finally {
+    setLoading(false);
   }
+}
 
   const filtered = useMemo(() => {
     return records.filter((item) => {
