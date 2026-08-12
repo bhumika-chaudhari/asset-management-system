@@ -30,8 +30,11 @@ export default function DashboardLayout({ children }) {
     { title: "Maintenance", href: "/maintenance", icon: Wrench },
     { title: "Reports", href: "/reports", icon: BarChart3 },
     { title: "Audit Logs", href: "/audit", icon: ShieldCheck },
-    
   ];
+
+  if (user?.role === "Admin") {
+    menu.push({ title: "System Users", href: "/users", icon: Settings });
+  }
 
   const handleLogout = () => {
     logout();

@@ -39,8 +39,27 @@ const createUser = async (user) => {
     return result;
 };
 
+// Get all users
+const getAllUsers = async () => {
+    const [rows] = await db.query(
+        "SELECT id, name, email, role, created_at FROM users ORDER BY id DESC"
+    );
+    return rows;
+};
+
+// Delete user
+const deleteUser = async (id) => {
+    const [result] = await db.query(
+        "DELETE FROM users WHERE id = ?",
+        [id]
+    );
+    return result;
+};
+
 module.exports = {
     findUserByEmail,
     findUserById,
-    createUser
+    createUser,
+    getAllUsers,
+    deleteUser
 };
