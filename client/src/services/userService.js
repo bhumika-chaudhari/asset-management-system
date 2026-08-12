@@ -1,5 +1,3 @@
-import api from "./authService"; // Reusing the axios instance with auth interceptor from authService or creating a new one if authService doesn't export `api`
-
 import axios from "axios";
 
 // Setup axios instance
