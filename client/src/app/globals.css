@@ -13,3 +13,38 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   background: #f8fafc;
 }
+
+/* --- Print Styles --- */
+@media print {
+  @page {
+    margin: 1cm;
+    size: landscape;
+  }
+
+  /* Hide navigation elements */
+  aside, 
+  header, 
+  button {
+    display: none !important;
+  }
+
+  /* Reset all scrolling and fixed heights */
+  html, body, main, div, section {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Optimize colors for printing (dark text on white) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color: black !important;
+    background: white !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+}
