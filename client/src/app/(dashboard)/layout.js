@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -15,12 +16,17 @@ import {
   LogOut,
   Bell,
   Search,
+  Menu,
+  X
 } from "lucide-react";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  
+  // Mobile sidebar state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menu = [
     { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -43,6 +49,116 @@ export default function DashboardLayout({ children }) {
     router.replace("/login");
   };
 
+  // Reusable Sidebar Content mapping exactly to previous Desktop style
+  const SidebarContent = () => (
+    <aside 
+      className="border-r border-white/5 bg-[#0A101D] shadow-2xl"
+      style={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        width: "280px", 
+        flexShrink: 0, 
+        height: "100%",
+        boxSizing: "border-box"
+      }}
+    >
+      
+      {/* Logo Section */}
+      <div 
+        className="border-b border-white/5"
+        style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          padding: "1.5rem 2rem", 
+          flexShrink: 0 
+        }}
+      >
+        <div 
+          className="rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10"
+          style={{ 
+            display: "flex", 
+            height: "2.5rem", 
+            width: "2.5rem", 
+            alignItems: "center", 
+            justifyContent: "center",
+            marginRight: "0.75rem"
+          }}
+        >
+          <Package className="text-cyan-400" size={20} />
+        </div>
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          <span className="bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
+            Asset
+          </span>
+          MS
+        </h1>
+        
+        {/* Close Button (Mobile Only) */}
+        <button 
+          className="ml-auto text-slate-400 md:hidden hover:text-white"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <X size={24} />
+        </button>
+      </div>
+
+      {/* Navigation - Forced vertical flex lists */}
+      <nav 
+        className="custom-scrollbar"
+        style={{ 
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.375rem",
+          flex: 1, 
+          padding: "1.5rem 1rem", 
+          overflowY: "auto" 
+        }}
+      >
+        {menu.map((item) => {
+          const Icon = item.icon;
+          // Handle sub-paths so the menu stays active (e.g., /audit/details)
+          const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setIsMobileMenuOpen(false)} // Close sidebar on mobile nav
+              className={`group flex items-center gap-3 rounded-xl transition-all duration-300
+                ${
+                  active
+                    ? "bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 text-cyan-400 shadow-[inset_2px_0_0_0_#22d3ee]"
+                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                }`}
+              style={{ padding: "0.875rem 1rem", textDecoration: "none" }}
+            >
+              <Icon 
+                size={20} 
+                className={`transition-colors duration-300 ${active ? "text-cyan-400" : "text-slate-500 group-hover:text-slate-300"}`} 
+              />
+              <span className="font-medium text-sm">{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer / Logout Button */}
+      <div 
+        className="border-t border-white/5"
+        style={{ padding: "1rem", flexShrink: 0 }}
+      >
+        <button
+          onClick={handleLogout}
+          className="group flex w-full items-center gap-3 rounded-xl font-medium text-slate-400 transition-all duration-300 hover:bg-red-500/10 hover:text-red-400"
+          style={{ padding: "0.875rem 1rem" }}
+        >
+          <LogOut size={20} className="text-slate-500 transition-colors duration-300 group-hover:text-red-400" />
+          <span className="text-sm">Logout</span>
+        </button>
+      </div>
+    </aside>
+  );
+
   return (
     // 1. Root wrapper strictly locked to screen size
     <div 
@@ -50,104 +166,23 @@ export default function DashboardLayout({ children }) {
       style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden" }}
     >
       
-      {/* 2. Sidebar with forced layout styles */}
-      <aside 
-        className="border-r border-white/5 bg-[#0A101D] shadow-2xl"
-        style={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          width: "280px", 
-          flexShrink: 0, 
-          height: "100%",
-          boxSizing: "border-box"
-        }}
-      >
-        
-        {/* Logo Section */}
-        <div 
-          className="border-b border-white/5"
-          style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            padding: "1.5rem 2rem", 
-            flexShrink: 0 
-          }}
-        >
+      {/* 2. Desktop Sidebar - Strictly preserves Desktop UI */}
+      <div className="hidden md:flex h-full">
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
           <div 
-            className="rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10"
-            style={{ 
-              display: "flex", 
-              height: "2.5rem", 
-              width: "2.5rem", 
-              alignItems: "center", 
-              justifyContent: "center",
-              marginRight: "0.75rem"
-            }}
-          >
-            <Package className="text-cyan-400" size={20} />
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="relative z-50 h-full w-[280px] bg-[#0A101D] shadow-2xl animate-in slide-in-from-left">
+            <SidebarContent />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
-              Asset
-            </span>
-            MS
-          </h1>
         </div>
-
-        {/* Navigation - Forced vertical flex lists */}
-        <nav 
-          className="custom-scrollbar"
-          style={{ 
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.375rem",
-            flex: 1, 
-            padding: "1.5rem 1rem", 
-            overflowY: "auto" 
-          }}
-        >
-          {menu.map((item) => {
-            const Icon = item.icon;
-            // Handle sub-paths so the menu stays active (e.g., /audit/details)
-            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group flex items-center gap-3 rounded-xl transition-all duration-300
-                  ${
-                    active
-                      ? "bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 text-cyan-400 shadow-[inset_2px_0_0_0_#22d3ee]"
-                      : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                  }`}
-                style={{ padding: "0.875rem 1rem", textDecoration: "none" }}
-              >
-                <Icon 
-                  size={20} 
-                  className={`transition-colors duration-300 ${active ? "text-cyan-400" : "text-slate-500 group-hover:text-slate-300"}`} 
-                />
-                <span className="font-medium text-sm">{item.title}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Footer / Logout Button */}
-        <div 
-          className="border-t border-white/5"
-          style={{ padding: "1rem", flexShrink: 0 }}
-        >
-          <button
-            onClick={handleLogout}
-            className="group flex w-full items-center gap-3 rounded-xl font-medium text-slate-400 transition-all duration-300 hover:bg-red-500/10 hover:text-red-400"
-            style={{ padding: "0.875rem 1rem" }}
-          >
-            <LogOut size={20} className="text-slate-500 transition-colors duration-300 group-hover:text-red-400" />
-            <span className="text-sm">Logout</span>
-          </button>
-        </div>
-      </aside>
+      )}
 
       {/* 3. Main container stretching dynamically */}
       <main 
@@ -176,8 +211,29 @@ export default function DashboardLayout({ children }) {
           }}
         >
           
-          {/* Search Box */}
-          <div className="relative w-full max-w-md" style={{ marginRight: "auto" }}>
+          {/* Mobile Header Elements */}
+          <div className="flex items-center gap-3 md:hidden" style={{ marginRight: "auto" }}>
+            <button
+              className="text-slate-300 transition-colors hover:text-white"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 ring-1 ring-white/10">
+                <Package className="text-cyan-400" size={16} />
+              </div>
+              <h1 className="text-lg font-extrabold tracking-tight">
+                <span className="bg-gradient-to-r from-cyan-400 to-indigo-500 bg-clip-text text-transparent">
+                  Asset
+                </span>
+                MS
+              </h1>
+            </div>
+          </div>
+
+          {/* Search Box (Desktop Only) */}
+          <div className="relative hidden w-full max-w-md md:block" style={{ marginRight: "auto" }}>
             <Search
               size={18}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
@@ -190,11 +246,10 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* User Actions Panel */}
-          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginLeft: "auto" }}>
             
             {/* Notification Icon */}
           
-
             {/* Profile Avatar & Info */}
             <div 
               className="border-l border-white/10"
@@ -245,7 +300,7 @@ export default function DashboardLayout({ children }) {
             }} 
           />
           
-          <section className="relative" style={{ zIndex: 10, padding: "2rem", minHeight: "100%", boxSizing: "border-box" }}>
+          <section className="relative w-full p-4 sm:p-6 md:p-8" style={{ zIndex: 10, minHeight: "100%", boxSizing: "border-box" }}>
             {children}
           </section>
         </div>
