@@ -1,18 +1,4 @@
-import axios from "axios";
-
-// Setup axios instance
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL + "/api",
-});
-
-// Add token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import api from "@/lib/axios";
 
 export const getUsers = async () => {
   const response = await api.get("/users");
